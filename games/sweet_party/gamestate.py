@@ -1,28 +1,37 @@
 from game_override import GameStateOverride
-from game_events import update_grid_mult_event
+from game_events import spawn_x_tile_event
 
 
 class GameState(GameStateOverride):
     """Core function handling simulation results."""
 
+    def _win_gametype(self) -> str:
+        """Resolve gametype for win tracking. super_basegame_type is a base game phase."""
+        if self.gametype == self.config.super_basegame_type:
+            return self.config.basegame_type
+        return self.gametype
+
     def run_spin(self, sim, simulation_seed=None):
         self.reset_seed(sim)
         self.repeat = True
         while self.repeat:
-            # Reset simulation variables and draw a new board based on the betmode criteria.
             self.reset_book()
             self.draw_board()
+            self.assign_symbol_multipliers()
+            self.spawn_x_tile()
+            spawn_x_tile_event(self)
 
             self.get_clusters_update_wins()
             self.emit_tumble_win_events()
 
-            while self.win_data["totalWin"] > 0 and not (self.wincap_triggered):
+            while self.win_data["totalWin"] > 0 and not self.wincap_triggered:
                 self.tumble_game_board()
+                self.assign_symbol_multipliers()  # assign to newly revealed symbols
                 self.get_clusters_update_wins()
                 self.emit_tumble_win_events()
 
             self.set_end_tumble_event()
-            self.win_manager.update_gametype_wins(self.gametype)
+            self.win_manager.update_gametype_wins(self._win_gametype())
 
             if self.check_fs_condition() and self.check_freespin_entry():
                 self.run_freespin_from_base()
@@ -36,18 +45,19 @@ class GameState(GameStateOverride):
         self.reset_fs_spin()
         while self.fs < self.tot_fs:
             self.update_freespin()
+            self.spawn_x_tile()
+            spawn_x_tile_event(self)
             self.draw_board()
-            update_grid_mult_event(self)
-            # Apply game-specific actions (i.e special symbol attributes before or after evaluation)
+            self.assign_symbol_multipliers()
 
             self.get_clusters_update_wins()
             self.emit_tumble_win_events()
-            self.update_grid_mults()
-            while self.win_data["totalWin"] > 0 and not (self.wincap_triggered):
+
+            while self.win_data["totalWin"] > 0 and not self.wincap_triggered:
                 self.tumble_game_board()
+                self.assign_symbol_multipliers()  # assign to newly revealed symbols
                 self.get_clusters_update_wins()
                 self.emit_tumble_win_events()
-                self.update_grid_mults()
 
             self.set_end_tumble_event()
             self.win_manager.update_gametype_wins(self.gametype)
