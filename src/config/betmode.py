@@ -1,4 +1,5 @@
 from src.config.constants import *
+from src.config.distributions import Distribution
 from typing import List
 
 
@@ -26,7 +27,7 @@ class BetMode:
         auto_close_disabled: bool,
         is_feature: bool,
         is_buybonus: bool,
-        distributions: List[object],
+        distributions: List[Distribution],
     ):
         self._name = name
         self._cost = cost

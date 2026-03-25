@@ -9,9 +9,9 @@ class Distribution:
 
     def __init__(
         self,
-        criteria: str = None,
-        quota: int = None,
-        fixed_amt: int = None,
+        criteria: str | None = None,
+        quota: float | None = None,
+        fixed_amt: int | None = None,
         win_criteria: Union[float, None] = None,
         conditions: dict = {},
         required_distribution_conditions: list = [
@@ -19,9 +19,9 @@ class Distribution:
         ],
         default_distribution_conditions: dict = {"force_wincap": False, "force_freegame": False},
     ):
-
         if fixed_amt is None:
-            assert quota > 0, "non-zero quota value must be assigned"
+            assert quota is not None, "non-none quota value must be assigned"
+            assert quota > 0.0, "non-zero quota value must be assigned"
         assert sum([quota is None, fixed_amt is None]) == 1, "must define either quota or fixed simulation amount"
 
         self._quota = quota
