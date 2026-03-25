@@ -129,7 +129,7 @@ class GameConfig(Config):
         self.special_symbols = {"scatter": ["S"]}
 
         self.freespin_triggers = {
-            self.basegame_type: {3: 8}, # Standard bonus
+            self.basegame_type: {3: 8, 4: 8, 5: 8, 6: 8, 7: 8}, # Standard bonus (3+ scatters always = 8 spins)
             self.super_basegame_type: {4: 10, 5: 11, 6: 12, 7: 13}, # Super bonus
             self.freegame_type: {3: 6, 4: 8, 5: 10, 6: 12, 7: 14}, # Retriggers
         }
@@ -140,6 +140,17 @@ class GameConfig(Config):
         }
 
         self.maximum_board_mult = 1024
+
+        # Per-symbol multiplier weights: {multiplier_value: relative_weight}
+        # None means no multiplier (symbol contributes 1x to the cluster product).
+        self.symbol_mult_weights: dict[int | None, int] = {2: 1, 4: 1, None: 8}
+
+        # Gold X-Tile spawn probability per game type.
+        # SUPER_BONUS freespins (100%) are handled directly in spawn_x_tile() via betmode check.
+        self.x_tile_probabilities: dict[str, float] = {
+            self.basegame_type: 0.0, # TODO
+            self.freegame_type: 0.10,
+        }
 
         reels = {"BR0": "BR0.csv", "FR0": "FR0.csv", "WCAP": "WCAP.csv"}
         self.reels = {}
@@ -411,7 +422,7 @@ class GameConfig(Config):
                                 self.basegame_type: {"BR0": 1},
                                 self.freegame_type: {"FR0": 1, "WCAP": 5},
                             },
-                            "mult_values": {  # STUB: actual weights unknown — see missing_info.md
+                            "mult_values": {  # STUB: actual weights unknown
                                 self.basegame_type: {2: 10, 3: 20, 4: 30, 5: 20, 10: 20, 20: 20, 50: 10},
                                 self.freegame_type: {2: 10, 3: 20, 4: 30, 5: 20, 10: 20, 20: 20, 50: 10},
                             },
@@ -451,11 +462,11 @@ class GameConfig(Config):
                         win_criteria=mode_maxwins["super_bonus"],
                         conditions={
                             "reel_weights": {
-                                self.basegame_type: {"BR0": 1},  # STUB: dedicated reel strip unknown
+                                self.super_basegame_type: {"BR0": 1},  # STUB: dedicated reel strip unknown
                                 self.freegame_type: {"FR0": 1, "WCAP": 5},
                             },
-                            "mult_values": {  # STUB: actual weights unknown — see missing_info.md
-                                self.basegame_type: {2: 10, 3: 20, 4: 30, 5: 20, 10: 20, 20: 20, 50: 10},
+                            "mult_values": {  # STUB
+                                self.super_basegame_type: {2: 10, 3: 20, 4: 30, 5: 20, 10: 20, 20: 20, 50: 10},
                                 self.freegame_type: {2: 10, 3: 20, 4: 30, 5: 20, 10: 20, 20: 20, 50: 10},
                             },
                             "scatter_triggers": {5: 1, 6: 2, 7: 3},  # STUB: relative weights unknown
@@ -468,7 +479,7 @@ class GameConfig(Config):
                         quota=0.1,
                         conditions={
                             "reel_weights": {
-                                self.basegame_type: {"BR0": 1},  # STUB
+                                self.super_basegame_type: {"BR0": 1},  # STUB
                                 self.freegame_type: {"FR0": 1},
                             },
                             "scatter_triggers": {5: 5, 6: 2, 7: 1},  # STUB: relative weights unknown
