@@ -1,49 +1,55 @@
+import random
+
 from game_calculations import GameCalculations
 from src.calculations.cluster import Cluster
-from game_events import update_grid_mult_event
+from src.calculations.statistics import get_random_outcome
 from src.events.events import update_freespin_event
 
 
 class GameExecutables(GameCalculations):
     """Game dependent grouped functions."""
 
-    def reset_grid_mults(self):
-        """Initialize all grid position multipliers."""
-        self.position_multipliers = [
-            [0 for _ in range(self.config.num_rows[reel])] for reel in range(self.config.num_reels)
-        ]
+    def assign_symbol_multipliers(self) -> None:
+        """Randomly assign 2x or 4x multipliers to non-scatter symbols that don't yet have one.
+        Called after draw_board() and after each tumble to cover newly revealed symbols."""
+        for reel in range(self.config.num_reels):
+            for row in range(self.config.num_rows[reel]):
+                sym = self.board[reel][row]
+                if not sym.scatter and sym.multiplier is None:
+                    sym.multiplier = get_random_outcome(self.config.symbol_mult_weights)
 
-    def update_grid_mults(self):
-        """All positions start with 1x. If there is a win in that position, the grid point
-        is 'activated' and all subsequent wins on that position will double the grid value."""
-        if self.win_data["totalWin"] > 0:
-            for win in self.win_data["wins"]:
-                for pos in win["positions"]:
-                    if self.position_multipliers[pos["reel"]][pos["row"]] == 0:
-                        self.position_multipliers[pos["reel"]][pos["row"]] = 1
-                    else:
-                        self.position_multipliers[pos["reel"]][pos["row"]] += 1
-                        self.position_multipliers[pos["reel"]][pos["row"]] = min(
-                            self.position_multipliers[pos["reel"]][pos["row"]], self.config.maximum_board_mult
-                        )
-            update_grid_mult_event(self)
+    def spawn_x_tile(self) -> None:
+        """Spawn a Gold X-Tile at a random board position.
+        Probability is determined by the active game type and bet mode:
+        - SUPER_BONUS freespins: 100% guaranteed
+        - BONUS freespins (freegame_type): 10%
+        - Base game: 0% (TODO)
+        """
+        if self.betmode == "super_bonus" and self.gametype == self.config.freegame_type:
+            prob = 1.0
+        else:
+            prob = self.config.x_tile_probabilities.get(self.gametype, 0.0)
 
-    def get_clusters_update_wins(self):
+        if prob > 0.0 and random.random() < prob:
+            reel = random.randrange(self.config.num_reels)
+            row = random.randrange(self.config.num_rows[reel])
+            self.x_tile_position = (reel, row)
+        else:
+            self.x_tile_position = None
+
+    def get_clusters_update_wins(self) -> None:
         """Find clusters on board and update win manager."""
         clusters = Cluster.get_clusters(self.board, "wild")
-        return_data = {
-            "totalWin": 0,
-            "wins": [],
-        }
-        self.board, self.win_data = self.evaluate_clusters_with_grid(
+        return_data = {"totalWin": 0, "wins": []}
+        self.x_tile_cluster_hit = False
+        self.board, self.win_data = self.evaluate_clusters(
             config=self.config,
             board=self.board,
             clusters=clusters,
-            pos_mult_grid=self.position_multipliers,
             global_multiplier=self.global_multiplier,
+            x_tile_position=self.x_tile_position,
             return_data=return_data,
         )
-
         Cluster.record_cluster_wins(self)
         self.win_manager.update_spinwin(self.win_data["totalWin"])
         self.win_manager.tumble_win = self.win_data["totalWin"]
