@@ -7,7 +7,7 @@ from warnings import warn
 class ConstructScaling:
     """Verify valid inputs for applying scaling conditions."""
 
-    def __init__(self, all_scaling: List[Tuple]):
+    def __init__(self, all_scaling: List[dict]):
         for scaling in all_scaling:
             for cond in ["criteria", "scale_factor", "win_range", "probability"]:
                 assert cond in scaling.keys()
@@ -90,18 +90,15 @@ class ConstructConditions:
 
     def __init__(
         self,
-        rtp: float = None,
-        av_win: float = None,
-        hr: float = None,
+        rtp: float | None = None,
+        av_win: float | None = None,
+        hr: float | None = None,
         search_conditions=None,
     ):
-        if rtp is None or rtp == "x":
-            assert all(
-                [av_win is not None, hr is not None]
-            ), "if RTP is not specified, hit-rate (hr) and average win amount (av_win) must be given. "
+        if rtp is None:
+            assert av_win is not None and hr is not None, \
+                "If RTP is not specified, both hr and av_win must be given."
             rtp = round(av_win / hr, 5)
-        none_count = sum([1 for x in [rtp, av_win, hr] if x is None])
-        assert none_count <= 1, "Criteria RTP is ill defined."
 
         search_range, force_search = (-1, -1), {}
         if isinstance(search_conditions, (float, int)):
