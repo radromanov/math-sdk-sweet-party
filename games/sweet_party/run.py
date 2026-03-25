@@ -1,5 +1,12 @@
 """Main file for generating results for sample ways-pay game."""
 
+import sys
+from pathlib import Path
+
+# Add the repo root (two levels up from this file) to sys.path so that
+# src/, optimization_program/, and utils/ are importable from anywhere.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 from gamestate import GameState
 from game_config import GameConfig
 from game_optimization import OptimizationSetup
@@ -19,7 +26,11 @@ if __name__ == "__main__":
 
     num_sim_args = {
         "base": int(1e4),
+        "feature_5x": int(1e4),
+        "feature_cluster_drop": int(1e4),
+        "feature_max_multi_tile": int(1e4),
         "bonus": int(1e4),
+        "super_bonus": int(1e4),
     }
 
     run_conditions = {
@@ -28,7 +39,7 @@ if __name__ == "__main__":
         "run_analysis": True,
         "run_format_checks": True,
     }
-    target_modes = ["base", "bonus"]
+    target_modes = ["base", "feature_5x", "feature_cluster_drop", "feature_max_multi_tile", "bonus", "super_bonus"]
 
     config = GameConfig()
     gamestate = GameState(config)
