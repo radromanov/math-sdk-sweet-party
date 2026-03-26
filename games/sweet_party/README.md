@@ -8,16 +8,16 @@ The engine implements the core gameplay loop without multipliers, Gold X-Tile, o
 
 ## Symbols
 
-| Symbol | Type | Min Cluster Pay (5) | Max Cluster Pay (15) |
-|--------|---------|---------------------|----------------------|
-| h1 | Regular | 2.0x | 300.0x |
-| h2 | Regular | 1.5x | 200.0x |
-| h3 | Regular | 1.0x | 180.0x |
-| h4 | Regular | 0.8x | 160.0x |
-| h5 | Regular | 0.6x | 120.0x |
-| h6 | Regular | 0.5x | 80.0x |
-| h7 | Regular | 0.4x | 40.0x |
-| S | Scatter | — | — |
+| Symbol | Type    | Min Cluster Pay (5) | Max Cluster Pay (15) |
+| ------ | ------- | ------------------- | -------------------- |
+| h1     | Regular | 2.0x                | 300.0x               |
+| h2     | Regular | 1.5x                | 200.0x               |
+| h3     | Regular | 1.0x                | 180.0x               |
+| h4     | Regular | 0.8x                | 160.0x               |
+| h5     | Regular | 0.6x                | 120.0x               |
+| h6     | Regular | 0.5x                | 80.0x                |
+| h7     | Regular | 0.4x                | 40.0x                |
+| S      | Scatter | —                   | —                    |
 
 No wild symbols in this game.
 
@@ -33,19 +33,19 @@ No wild symbols in this game.
 
 Payouts are in multiples of base bet.
 
-| Size | h1 | h2 | h3 | h4 | h5 | h6 | h7 |
-|------|------|------|------|------|------|------|------|
-| 5 | 2.0 | 1.5 | 1.0 | 0.8 | 0.6 | 0.5 | 0.4 |
-| 6 | 3.0 | 2.0 | 1.5 | 1.0 | 0.8 | 0.6 | 0.5 |
-| 7 | 3.5 | 2.5 | 2.0 | 1.5 | 1.0 | 0.8 | 0.6 |
-| 8 | 4.0 | 3.0 | 2.5 | 2.0 | 1.5 | 1.0 | 0.8 |
-| 9 | 5.0 | 4.0 | 3.0 | 2.5 | 2.0 | 1.5 | 1.0 |
-| 10 | 10.0 | 8.0 | 6.0 | 4.0 | 3.0 | 2.5 | 2.0 |
-| 11 | 15.0 | 12.0 | 9.0 | 6.0 | 5.0 | 4.0 | 3.0 |
-| 12 | 30.0 | 25.0 | 20.0 | 10.0 | 7.0 | 6.0 | 5.0 |
-| 13 | 70.0 | 60.0 | 50.0 | 40.0 | 30.0 | 20.0 | 10.0 |
-| 14 | 140.0 | 120.0 | 100.0 | 80.0 | 60.0 | 40.0 | 20.0 |
-| 15+ | 300.0 | 200.0 | 180.0 | 160.0 | 120.0 | 80.0 | 40.0 |
+| Size | h1    | h2    | h3    | h4    | h5    | h6   | h7   |
+| ---- | ----- | ----- | ----- | ----- | ----- | ---- | ---- |
+| 5    | 2.0   | 1.5   | 1.0   | 0.8   | 0.6   | 0.5  | 0.4  |
+| 6    | 3.0   | 2.0   | 1.5   | 1.0   | 0.8   | 0.6  | 0.5  |
+| 7    | 3.5   | 2.5   | 2.0   | 1.5   | 1.0   | 0.8  | 0.6  |
+| 8    | 4.0   | 3.0   | 2.5   | 2.0   | 1.5   | 1.0  | 0.8  |
+| 9    | 5.0   | 4.0   | 3.0   | 2.5   | 2.0   | 1.5  | 1.0  |
+| 10   | 10.0  | 8.0   | 6.0   | 4.0   | 3.0   | 2.5  | 2.0  |
+| 11   | 15.0  | 12.0  | 9.0   | 6.0   | 5.0   | 4.0  | 3.0  |
+| 12   | 30.0  | 25.0  | 20.0  | 10.0  | 7.0   | 6.0  | 5.0  |
+| 13   | 70.0  | 60.0  | 50.0  | 40.0  | 30.0  | 20.0 | 10.0 |
+| 14   | 140.0 | 120.0 | 100.0 | 80.0  | 60.0  | 40.0 | 20.0 |
+| 15+  | 300.0 | 200.0 | 180.0 | 160.0 | 120.0 | 80.0 | 40.0 |
 
 ## Game Flow
 
@@ -71,23 +71,23 @@ Triggered by landing 3+ scatter symbols on the initial board (before cascades).
 
 **Initial spins awarded (from base game):**
 
-| Scatters | Spins | Type |
-|----------|-------|------|
-| 3 | 8 | BONUS |
-| 4 | 10 | SUPER_BONUS |
-| 5 | 11 | SUPER_BONUS |
-| 6 | 12 | SUPER_BONUS |
-| 7 | 13 | SUPER_BONUS |
+| Scatters | Spins | Type        |
+| -------- | ----- | ----------- |
+| 3        | 8     | BONUS       |
+| 4        | 10    | SUPER_BONUS |
+| 5        | 11    | SUPER_BONUS |
+| 6        | 12    | SUPER_BONUS |
+| 7        | 13    | SUPER_BONUS |
 
 **Retrigger (during freespins):**
 
 | Scatters | Extra Spins |
-|----------|-------------|
-| 3 | +6 |
-| 4 | +8 |
-| 5 | +10 |
-| 6 | +12 |
-| 7 | +14 |
+| -------- | ----------- |
+| 3        | +6          |
+| 4        | +8          |
+| 5        | +10         |
+| 6        | +12         |
+| 7        | +14         |
 
 Each freespin follows the same cascade flow as the base game. Scatter counts above 7 are capped to 7 for trigger lookups.
 
@@ -97,22 +97,22 @@ Currently only the **base** mode is implemented (cost: 1x base bet).
 
 ### Simulation Distributions
 
-| Criteria | Quota | Description |
-|----------|-------|-------------|
-| wincap | 0.1% | Forces freespin trigger + wincap hit at 10,000x |
-| freegame | 10% | Forces freespin trigger |
-| 0 | 40% | Guarantees zero-win outcome |
-| basegame | 50% | Normal gameplay |
+| Criteria | Quota | Description                                     |
+| -------- | ----- | ----------------------------------------------- |
+| wincap   | 0.1%  | Forces freespin trigger + wincap hit at 10,000x |
+| freegame | 10%   | Forces freespin trigger                         |
+| 0        | 40%   | Guarantees zero-win outcome                     |
+| basegame | 49.9% | Normal gameplay                                 |
 
 ## Reel Strips
 
 Placeholder strips are currently in place. These need optimization tuning to hit the 96% RTP target.
 
-| Strip | Rows | Scatters/Reel | Usage |
-|-------|------|---------------|-------|
-| BR0 | 70 | 2 | Base game |
-| FR0 | 80 | 1 | Free game |
-| WCAP | 42 | 5 | Wincap forcing (freegame) |
+| Strip | Rows | Scatters/Reel | Usage                     |
+| ----- | ---- | ------------- | ------------------------- |
+| BR0   | 70   | 2             | Base game                 |
+| FR0   | 80   | 1             | Free game                 |
+| WCAP  | 42   | 5             | Wincap forcing (freegame) |
 
 ## Edge Cases
 
@@ -141,6 +141,7 @@ python run.py
 ```
 
 Configuration in `run.py`:
+
 - `num_threads`: parallel simulation threads (default: 10)
 - `num_sim_args`: simulation count per bet mode
 - `run_conditions`: toggle sims, optimization, analysis, format checks
