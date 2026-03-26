@@ -17,11 +17,11 @@ def xtile_spawn_event(gamestate) -> None:
     gamestate.book.add_event(event)
 
 
-def xtile_consume_event(gamestate, cluster_symbol: str, cluster_positions: list[dict[str, int]]) -> None:
-    """Emit when a Gold X-Tile is consumed by a winning cluster."""
+def xtile_apply_event(gamestate, cluster_symbol: str, cluster_positions: list[dict[str, int]]) -> None:
+    """Emit when a Gold X-Tile applies multipliers to a winning cluster."""
     event: dict = {
         "index": len(gamestate.book.events),
-        "type": EventConstants.XTILE_CONSUME.value,
+        "type": EventConstants.XTILE_APPLY.value,
         "clusterSymbol": cluster_symbol,
         "clusterPositions": cluster_positions,
     }

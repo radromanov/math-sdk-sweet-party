@@ -5,7 +5,7 @@ from src.calculations.cluster import Cluster
 from src.calculations.statistics import get_random_outcome
 from src.events.events import update_freespin_event, fs_trigger_event
 from src.wins.multiplier_strategy import apply_product_symbol_mult
-from game_events import xtile_spawn_event, xtile_consume_event
+from game_events import xtile_spawn_event, xtile_apply_event
 
 
 class GameExecutables(GameCalculations):
@@ -47,7 +47,10 @@ class GameExecutables(GameCalculations):
             xtile_spawn_event(self)
 
     def apply_xtile_to_clusters(self) -> None:
-        """Grant random 2x/4x multipliers to a winning cluster that overlaps the X-Tile."""
+        """Grant random 2x/4x multipliers to all winning clusters that overlap the X-Tile.
+
+        The X-Tile persists through the entire spin - it is NOT consumed on use.
+        """
         if self.xtile_position is None:
             return
         xtile_reel: int = self.xtile_position[0]
@@ -81,10 +84,7 @@ class GameExecutables(GameCalculations):
             win_entry["meta"]["clusterMult"] = cluster_mult
             self.win_data["totalWin"] += new_win - old_win
 
-            # Consume the X-Tile
-            xtile_consume_event(self, win_entry["symbol"], win_entry["positions"])
-            self.xtile_position = None
-            break
+            xtile_apply_event(self, win_entry["symbol"], win_entry["positions"])
 
     # --- Cluster evaluation ---
 

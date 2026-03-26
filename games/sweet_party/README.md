@@ -59,12 +59,13 @@ Every paying symbol (h1-h7) has a random chance to carry a **2x** or **4x** mult
 
 A special board position that grants multipliers to an entire winning cluster when any symbol from that cluster lands on the tile. **Only spawns during free spins (BONUS mode), never in base game.**
 
-- **Spawn:** Each board reveal and each tumble cascade has a 10% chance to place an X-Tile on a random board cell
-- **Limit:** At most 1 X-Tile can exist on the board at any time
-- **Consumed on use:** When a winning cluster includes a symbol on the X-Tile position, the tile is consumed
-- **Effect:** Every symbol in that cluster that does NOT already have a native multiplier gets an independent random 2x or 4x (same weighted distribution as native multipliers: 75% for 2x, 25% for 4x)
-- **Respawn:** After consumption (or if none exists), the next tumble has a fresh chance to spawn a new X-Tile
-- **Events:** `xTileSpawn` (with position) and `xTileConsume` (with cluster info) are emitted
+- **Spawn:** 10% chance to spawn once per free spin (rolled after the initial board draw, not re-rolled on tumbles)
+- **Limit:** At most 1 X-Tile on the board at any time
+- **Persists:** The X-Tile stays on the board through all tumble cascades until the free spin iteration ends
+- **Not consumed:** When a winning cluster overlaps the X-Tile, the tile remains — it can affect clusters on every tumble
+- **Effect:** Every symbol in an overlapping cluster that does NOT already have a native multiplier gets an independent random 2x or 4x (same weighted distribution as native multipliers: 75% for 2x, 25% for 4x)
+- **Multiple clusters:** If multiple winning clusters overlap the X-Tile in the same evaluation, all of them receive multipliers
+- **Events:** `xTileSpawn` (with position) and `xTileApply` (with cluster info, emitted per affected cluster)
 
 ## Game Flow
 
@@ -89,7 +90,7 @@ A special board position that grants multipliers to an entire winning cluster wh
 Triggered by landing 3+ scatter symbols on the initial base game board. Awards **8 free spins**.
 
 Each free spin follows the same cascade flow as the base game, plus:
-- **Gold X-Tile:** 10% chance to spawn per board reveal / tumble
+- **Gold X-Tile:** 10% chance to spawn once per free spin; persists through all tumbles
 - **Retrigger:** Landing 3+ scatters during a free spin awards extra spins:
 
 | Scatters | Extra Spins |
@@ -178,7 +179,7 @@ games/sweet_party/
   game_calculations.py  # Cluster evaluation with size capping
   game_executables.py   # Cluster detection, scatter capping, freespin updates
   game_override.py      # State resets, repeat validation
-  game_events.py        # X-Tile spawn/consume events
+  game_events.py        # X-Tile spawn/apply events
   game_optimization.py  # RTP optimization parameters
   monte_carlo.py        # Full Monte Carlo pipeline (sim + optimize + analyze)
   run.py                # Entry point
