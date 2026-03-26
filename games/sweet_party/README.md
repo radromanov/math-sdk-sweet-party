@@ -2,9 +2,9 @@
 
 7x7 cluster-pays cascade slot game.
 
-## Current State: Vanilla
+## Current State: Symbol Multipliers
 
-The engine implements the core gameplay loop without multipliers, Gold X-Tile, or buy modes. These will be layered on in future iterations.
+The engine implements the core gameplay loop with 2x/4x symbol multipliers. Gold X-Tile and buy modes will be layered on in future iterations.
 
 ## Symbols
 
@@ -46,6 +46,17 @@ Payouts are in multiples of base bet.
 | 13   | 70.0  | 60.0  | 50.0  | 40.0  | 30.0  | 20.0 | 10.0 |
 | 14   | 140.0 | 120.0 | 100.0 | 80.0  | 60.0  | 40.0 | 20.0 |
 | 15+  | 300.0 | 200.0 | 180.0 | 160.0 | 120.0 | 80.0 | 40.0 |
+
+## Symbol Multipliers
+
+Every paying symbol (h1-h7) has a random chance to carry a **2x** or **4x** multiplier on both the initial board reveal and each tumble cascade.
+
+- **Probability:** Configurable per symbol via `multiplier_chance` (default 5%)
+- **Distribution:** Weighted selection between 2x (75%) and 4x (25%)
+- **Application:** When a winning cluster forms, all multipliers within the cluster are **multiplied together** (product, not sum)
+- **Cap:** The product of multipliers is capped at **1024x**
+- **Formula:** `cluster_win = paytable_win × multiplier_product`
+- **Scatter exclusion:** Scatter symbols ("S") never receive multipliers
 
 ## Game Flow
 
@@ -125,9 +136,7 @@ Placeholder strips are currently in place. These need optimization tuning to hit
 
 The following features from the spec are planned for future iterations:
 
-- **Symbol multipliers:** Random 2x/4x multipliers on individual symbols
 - **Gold X-Tile:** Board position that grants multipliers to clusters landing on it
-- **Maximum multiplier product cap:** 1,024x
 - **Buy modes:** FEATURE_5X (3x cost), FEATURE_Cluster Drop (25x), FEATURE_Max Multi Tile (500x)
 - **BONUS buy:** 100x cost, direct entry to 8 free spins with 10% X-Tile chance per spin
 - **SUPER_BONUS buy:** 300x cost, direct entry to free spins with guaranteed X-Tile per spin

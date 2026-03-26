@@ -41,6 +41,23 @@ def apply_added_symbol_mult(board: Board, win_amount: float, positions: List[Dic
     return (round(win_amount * max(symbol_multiplier, 1), 2), max(symbol_multiplier, 1))
 
 
+def apply_product_symbol_mult(
+    board: Board,
+    positions: List[Dict],
+    multiplier_key: str = "multiplier",
+    cap: int = 1024,
+) -> int:
+    """Compute the PRODUCT of all symbol multipliers within winning positions, capped."""
+    product: int = 1
+    for pos in positions:
+        sym = board[pos["reel"]][pos["row"]]
+        if sym.check_attribute(multiplier_key):
+            mult_val: int = sym.get_attribute(multiplier_key)
+            if mult_val is not None and mult_val > 1:
+                product *= mult_val
+    return min(product, cap)
+
+
 def apply_combined_mult(
     board: Board, win_amount: float, global_multiplier: int, positions: List[Dict], multiplier_key
 ) -> tuple:

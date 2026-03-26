@@ -120,7 +120,7 @@ class GameConfig(Config):
         self.paytable = self.convert_range_table(pay_group)
 
         self.include_padding = True
-        self.special_symbols = {"wild": [], "scatter": ["S"]}
+        self.special_symbols: dict[str, list[str]] = {"wild": [], "scatter": ["S"], "multiplier": []}
 
         self.freespin_triggers = {
             self.basegame_type: {3: 8, 4: 10, 5: 11, 6: 12, 7: 13},
@@ -131,7 +131,13 @@ class GameConfig(Config):
             self.freegame_type: min(self.freespin_triggers[self.freegame_type].keys()) - 1,
         }
 
-        self.max_cluster_pay_size = 15
+        self.max_cluster_pay_size: int = 15
+
+        # Symbol multiplier configuration
+        self.multiplier_chance: float = 0.05
+        self.multiplier_values: dict[int, int] = {2: 3, 4: 1}
+        self.multiplier_product_cap: int = 1024
+        self.multiplier_excluded_symbols: set[str] = {"S"}
 
         reels = {"BR0": "BR0.csv", "FR0": "FR0.csv", "WCAP": "WCAP.csv"}
         self.reels = {}
