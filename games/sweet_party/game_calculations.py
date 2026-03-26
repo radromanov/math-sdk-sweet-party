@@ -1,87 +1,68 @@
 from src.executables.executables import Executables
 from src.calculations.cluster import Cluster
 from src.calculations.board import Board
-from game_config import GameConfig
+from src.config.config import Config
 
 
 class GameCalculations(Executables):
     """
-    Overrides cluster evaluation to use per-symbol 2x/4x multipliers.
-    Cluster multiplier = product of all symbol multipliers in the cluster,
-    capped at config.maximum_board_mult (1024).
+    This function will override the evaluate_clusters() function in cluster.py
+    This is to account for the grid multiplier in winning positions.
     """
 
-    def evaluate_clusters(
+    # Override cluster evaluation functions to include grid position multipliers
+    def evaluate_clusters_with_grid(
         self,
-        config: GameConfig,
+        config: Config,
         board: Board,
         clusters: dict,
+        pos_mult_grid: list,
         global_multiplier: int = 1,
-        x_tile_position: tuple | None = None,
         return_data: dict = {"totalWin": 0, "wins": []},
-    ) -> tuple:
+    ) -> type:
         """
-        Determine payout from each cluster.
-        If a cluster overlaps the Gold X-Tile, every symbol in that cluster
-        which has no multiplier is assigned one (stubbed at 2x).
-        The cluster multiplier is the product of all symbol multipliers, capped at
-        maximum_board_mult.
+        Determine payout amount from cluster, including symbol multiplier and global multiplier value.
+        Game specific function which takes into account position multipliers.
         """
         exploding_symbols = []
         total_win = 0
-
         for sym in clusters:
             for cluster in clusters[sym]:
                 syms_in_cluster = len(cluster)
-                if (syms_in_cluster, sym) not in config.paytable:
-                    continue
+                if (syms_in_cluster, sym) in config.paytable:
+                    board_mult = 0
+                    for positions in cluster:
+                        board_mult += pos_mult_grid[positions[0]][positions[1]]
+                    board_mult = max(board_mult, 1)
+                    sym_win = config.paytable[(syms_in_cluster, sym)]
+                    symwin_mult = sym_win * board_mult * global_multiplier
+                    total_win += symwin_mult
+                    json_positions = [{"reel": p[0], "row": p[1]} for p in cluster]
 
-                # Check if any position in this cluster lands on the Gold X-Tile
-                if x_tile_position is not None and any(
-                    p[0] == x_tile_position[0] and p[1] == x_tile_position[1]
-                    for p in cluster
-                ):
-                    self.x_tile_cluster_hit = True
-                    # Assign a multiplier to every unassigned symbol in this cluster
-                    for p in cluster:
-                        sym_obj = board[p[0]][p[1]]
-                        if sym_obj.multiplier is None:
-                            sym_obj.multiplier = 2  # STUB: X-Tile default multiplier unknown
+                    central_pos = Cluster.get_central_cluster_position(json_positions)
+                    return_data["wins"] += [
+                        {
+                            "symbol": sym,
+                            "clusterSize": syms_in_cluster,
+                            "win": symwin_mult,
+                            "positions": json_positions,
+                            "meta": {
+                                "globalMult": global_multiplier,
+                                "clusterMult": board_mult,
+                                "winWithoutMult": sym_win,
+                                "overlay": {"reel": central_pos[0], "row": central_pos[1]},
+                            },
+                        }
+                    ]
 
-                # Cluster multiplier = product of all symbol multipliers (None counts as 1)
-                cluster_mult = 1
-                for p in cluster:
-                    m = board[p[0]][p[1]].multiplier
-                    if m is not None:
-                        cluster_mult *= m
-                cluster_mult = min(cluster_mult, config.maximum_board_mult)
-
-                sym_win = config.paytable[(syms_in_cluster, sym)]
-                total_sym_win = sym_win * cluster_mult * global_multiplier
-                total_win += total_sym_win
-
-                json_positions = [{"reel": p[0], "row": p[1]} for p in cluster]
-                central_pos = Cluster.get_central_cluster_position(json_positions)
-                return_data["wins"].append(
-                    {
-                        "symbol": sym,
-                        "clusterSize": syms_in_cluster,
-                        "win": total_sym_win,
-                        "positions": json_positions,
-                        "meta": {
-                            "globalMult": global_multiplier,
-                            "clusterMult": cluster_mult,
-                            "winWithoutMult": sym_win,
-                            "overlay": {"reel": central_pos[0], "row": central_pos[1]},
-                        },
-                    }
-                )
-
-                for p in cluster:
-                    board[p[0]][p[1]].explode = True
-                    pos_dict = {"reel": p[0], "row": p[1]}
-                    if pos_dict not in exploding_symbols:
-                        exploding_symbols.append(pos_dict)
+                    for positions in cluster:
+                        board[positions[0]][positions[1]].explode = True
+                        if {
+                            "reel": positions[0],
+                            "row": positions[1],
+                        } not in exploding_symbols:
+                            exploding_symbols.append({"reel": positions[0], "row": positions[1]})
 
         return_data["totalWin"] += total_win
+
         return board, return_data

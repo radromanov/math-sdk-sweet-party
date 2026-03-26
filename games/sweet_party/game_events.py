@@ -1,17 +1,14 @@
-SPAWN_X_TILE = "spawnXTile"
+from copy import deepcopy
+
+APPLY_TUMBLE_MULTIPLIER = "applyMultiplierToTumble"
+UPDATE_GRID = "updateGrid"
 
 
-def spawn_x_tile_event(gamestate) -> None:
-    """Emit the Gold X-Tile position to the book for front-end rendering.
-    No-ops if no X-Tile spawned this spin."""
-    if gamestate.x_tile_position is None:
-        return
+def update_grid_mult_event(gamestate):
+    """Pass updated position multipliers after a win."""
     event = {
         "index": len(gamestate.book.events),
-        "type": SPAWN_X_TILE,
-        "position": {
-            "reel": gamestate.x_tile_position[0],
-            "row": gamestate.x_tile_position[1],
-        },
+        "type": UPDATE_GRID,
+        "gridMultipliers": deepcopy(gamestate.position_multipliers),
     }
     gamestate.book.add_event(event)

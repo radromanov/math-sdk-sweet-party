@@ -1,3 +1,5 @@
+"""Cluster game configuration file/setup"""
+
 import os
 from src.config.config import Config
 from src.config.distributions import Distribution
@@ -8,7 +10,6 @@ class GameConfig(Config):
     """Singleton cluster game configuration class."""
 
     _instance = None
-    super_basegame_type = "super_basegame_type"
 
     def __new__(cls):
         if cls._instance is None:
@@ -17,12 +18,12 @@ class GameConfig(Config):
 
     def __init__(self):
         super().__init__()
-        self.game_id = "sweet_party"
+        self.game_id = "0_0_cluster"
         self.provider_number = 0
-        self.working_name = "Sweet Party"
-        self.wincap = 10000.0
+        self.working_name = "Sample Cluster Game"
+        self.wincap = 5000.0
         self.win_type = "cluster"
-        self.rtp = 0.9600
+        self.rtp = 0.9700
         self.construct_paths()
 
         # Game Dimensions
@@ -30,140 +31,62 @@ class GameConfig(Config):
         # Optionally include variable number of rows per reel
         self.num_rows = [7] * self.num_reels
         # Board and Symbol Properties
-        t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11 = (5,5), (6,6), (7,7), (8,8), (9,9), (10,10), (11,11), (12,12), (13,13), (14,14), (15,15)
+        t1, t2, t3, t4 = (5, 5), (6, 8), (9, 12), (13, 36)
         pay_group = {
-            # H1
-            (t1,  "h1"): 2.0,
-            (t2,  "h1"): 3.0,
-            (t3,  "h1"): 3.5,
-            (t4,  "h1"): 4.0,
-            (t5,  "h1"): 5.0,
-            (t6,  "h1"): 10.0,
-            (t7,  "h1"): 15.0,
-            (t8,  "h1"): 30.0,
-            (t9,  "h1"): 70.0,
-            (t10, "h1"): 140.0,
-            (t11, "h1"): 300.0,
-
-            # H2
-            (t1,  "h2"): 1.5,
-            (t2,  "h2"): 2.0,
-            (t3,  "h2"): 2.5,
-            (t4,  "h2"): 3.0,
-            (t5,  "h2"): 4.0,
-            (t6,  "h2"): 8.0,
-            (t7,  "h2"): 12.0,
-            (t8,  "h2"): 25.0,
-            (t9,  "h2"): 60.0,
-            (t10, "h2"): 120.0,
-            (t11, "h2"): 200.0,
-
-            # H3
-            (t1,  "h3"): 1.0,
-            (t2,  "h3"): 1.5,
-            (t3,  "h3"): 2.0,
-            (t4,  "h3"): 2.5,
-            (t5,  "h3"): 3.0,
-            (t6,  "h3"): 6.0,
-            (t7,  "h3"): 9.0,
-            (t8,  "h3"): 20.0,
-            (t9,  "h3"): 50.0,
-            (t10, "h3"): 100.0,
-            (t11, "h3"): 180.0,
-
-            # H4
-            (t1,  "h4"): 0.8,
-            (t2,  "h4"): 1.0,
-            (t3,  "h4"): 1.5,
-            (t4,  "h4"): 2.0,
-            (t5,  "h4"): 2.5,
-            (t6,  "h4"): 4.0,
-            (t7,  "h4"): 6.0,
-            (t8,  "h4"): 10.0,
-            (t9,  "h4"): 40.0,
-            (t10, "h4"): 80.0,
-            (t11, "h4"): 160.0,
-
-            # H5
-            (t1,  "h5"): 0.6,
-            (t2,  "h5"): 0.8,
-            (t3,  "h5"): 1.0,
-            (t4,  "h5"): 1.5,
-            (t5,  "h5"): 2.0,
-            (t6,  "h5"): 3.0,
-            (t7,  "h5"): 5.0,
-            (t8,  "h5"): 7.0,
-            (t9,  "h5"): 30.0,
-            (t10, "h5"): 60.0,
-            (t11, "h5"): 120.0,
-
-            # H6
-            (t1,  "h6"): 0.5,
-            (t2,  "h6"): 0.6,
-            (t3,  "h6"): 0.8,
-            (t4,  "h6"): 1.0,
-            (t5,  "h6"): 1.5,
-            (t6,  "h6"): 2.5,
-            (t7,  "h6"): 4.0,
-            (t8,  "h6"): 6.0,
-            (t9,  "h6"): 20.0,
-            (t10, "h6"): 40.0,
-            (t11, "h6"): 80.0,
-
-            # H7
-            (t1,  "h7"): 0.4,
-            (t2,  "h7"): 0.5,
-            (t3,  "h7"): 0.6,
-            (t4,  "h7"): 0.8,
-            (t5,  "h7"): 1.0,
-            (t6,  "h7"): 2.0,
-            (t7,  "h7"): 3.0,
-            (t8,  "h7"): 5.0,
-            (t9,  "h7"): 10.0,
-            (t10, "h7"): 20.0,
-            (t11, "h7"): 40.0,
+            (t1, "H1"): 5.0,
+            (t2, "H1"): 12.5,
+            (t3, "H1"): 25.0,
+            (t4, "H1"): 60.0,
+            (t1, "H2"): 2.0,
+            (t2, "H2"): 5.0,
+            (t3, "H2"): 10.0,
+            (t4, "H2"): 40.0,
+            (t1, "H3"): 1.3,
+            (t2, "H3"): 3.2,
+            (t3, "H3"): 7.0,
+            (t4, "H3"): 30.0,
+            (t1, "H4"): 1.0,
+            (t2, "H4"): 2.5,
+            (t3, "H4"): 6.0,
+            (t4, "H4"): 20.0,
+            (t1, "L1"): 0.6,
+            (t2, "L1"): 1.5,
+            (t3, "L1"): 4.0,
+            (t4, "L1"): 10.0,
+            (t1, "L2"): 0.4,
+            (t2, "L2"): 1.2,
+            (t3, "L2"): 3.5,
+            (t4, "L2"): 8.0,
+            (t1, "L3"): 0.2,
+            (t2, "L3"): 0.8,
+            (t3, "L3"): 2.5,
+            (t4, "L3"): 5.0,
+            (t1, "L4"): 0.1,
+            (t2, "L4"): 0.5,
+            (t3, "L4"): 1.5,
+            (t4, "L4"): 4.0,
         }
         self.paytable = self.convert_range_table(pay_group)
 
         self.include_padding = True
-        self.special_symbols = {"scatter": ["S"]}
+        self.special_symbols = {"wild": ["W"], "scatter": ["S"]}
 
         self.freespin_triggers = {
-            self.basegame_type: {3: 8, 4: 8, 5: 8, 6: 8, 7: 8}, # Standard bonus (3+ scatters always = 8 spins)
-            self.super_basegame_type: {4: 10, 5: 11, 6: 12, 7: 13}, # Super bonus
-            self.freegame_type: {3: 6, 4: 8, 5: 10, 6: 12, 7: 14}, # Retriggers
+            self.basegame_type: {4: 10, 5: 12, 6: 15, 7: 18, 8: 20},
+            self.freegame_type: {3: 5, 4: 8, 5: 10, 6: 12, 7: 15, 8: 18},
         }
         self.anticipation_triggers = {
             self.basegame_type: min(self.freespin_triggers[self.basegame_type].keys()) - 1,
-            self.super_basegame_type: min(self.freespin_triggers[self.super_basegame_type].keys()) - 1,
             self.freegame_type: min(self.freespin_triggers[self.freegame_type].keys()) - 1,
         }
 
-        self.maximum_board_mult = 1024
-
-        # Per-symbol multiplier weights: {multiplier_value: relative_weight}
-        # None means no multiplier (symbol contributes 1x to the cluster product).
-        self.symbol_mult_weights: dict[int | None, int] = {2: 1, 4: 1, None: 8}
-
-        # Gold X-Tile spawn probability per game type.
-        # SUPER_BONUS freespins (100%) are handled directly in spawn_x_tile() via betmode check.
-        self.x_tile_probabilities: dict[str, float] = {
-            self.basegame_type: 0.0, # TODO
-            self.freegame_type: 0.10,
-        }
+        self.maximum_board_mult = 512
 
         reels = {"BR0": "BR0.csv", "FR0": "FR0.csv", "WCAP": "WCAP.csv"}
         self.reels = {}
         for r, f in reels.items():
             self.reels[r] = self.read_reels_csv(os.path.join(self.reels_path, f))
-        mode_maxwins = {
-            "base": 10000,
-            "bonus": 10000,
-            "super_bonus": 10000,
-            "feature_5x": 10000,
-            "feature_cluster_drop": 10000,
-            "feature_max_multi_tile": 10000,
-        }
+        mode_maxwins = {"base": 5000, "bonus": 5000}
 
         self.bet_modes = [
             BetMode(
@@ -223,195 +146,14 @@ class GameConfig(Config):
                     ),
                 ],
             ),
-            # FEATURE_5X: 5x more scatter chance, cost = 3x base bet
-            BetMode(
-                name="feature_5x",
-                cost=3.0,
-                rtp=self.rtp,
-                max_win=mode_maxwins["feature_5x"],
-                auto_close_disabled=False,
-                is_feature=True,
-                is_buybonus=False,
-                distributions=[
-                    Distribution(
-                        criteria="wincap",
-                        quota=0.001,
-                        win_criteria=mode_maxwins["feature_5x"],
-                        conditions={
-                            "reel_weights": {
-                                self.basegame_type: {"BR0": 1},  # STUB: dedicated reel strip unknown
-                                self.freegame_type: {"FR0": 1, "WCAP": 5},
-                            },
-                            "scatter_triggers": {4: 5, 5: 10},  # STUB: ~5x boost vs base {4:1, 5:2}
-                            "force_wincap": True,
-                            "force_freegame": True,
-                        },
-                    ),
-                    Distribution(
-                        criteria="freegame",
-                        quota=0.1,
-                        conditions={
-                            "reel_weights": {
-                                self.basegame_type: {"BR0": 1},  # STUB
-                                self.freegame_type: {"FR0": 1},
-                            },
-                            "scatter_triggers": {4: 25, 5: 5},  # STUB: ~5x boost vs base {4:5, 5:1}
-                            "force_wincap": False,
-                            "force_freegame": True,
-                        },
-                    ),
-                    Distribution(
-                        criteria="0",
-                        quota=0.4,
-                        win_criteria=0.0,
-                        conditions={
-                            "reel_weights": {self.basegame_type: {"BR0": 1}},  # STUB
-                            "force_wincap": False,
-                            "force_freegame": False,
-                        },
-                    ),
-                    Distribution(
-                        criteria="basegame",
-                        quota=0.5,
-                        conditions={
-                            "reel_weights": {self.basegame_type: {"BR0": 1}},  # STUB
-                            "force_wincap": False,
-                            "force_freegame": False,
-                        },
-                    ),
-                ],
-            ),
-            # FEATURE_Cluster_Drop: guaranteed cluster per spin, cost = 25x base bet
-            BetMode(
-                name="feature_cluster_drop",
-                cost=25.0,
-                rtp=self.rtp,
-                max_win=mode_maxwins["feature_cluster_drop"],
-                auto_close_disabled=False,
-                is_feature=True,
-                is_buybonus=False,
-                distributions=[
-                    Distribution(
-                        criteria="wincap",
-                        quota=0.001,
-                        win_criteria=mode_maxwins["feature_cluster_drop"],
-                        conditions={
-                            "reel_weights": {
-                                self.basegame_type: {"BR0": 1},  # STUB: dedicated reel strip unknown
-                                self.freegame_type: {"FR0": 1, "WCAP": 5},
-                            },
-                            "scatter_triggers": {4: 1, 5: 2},
-                            # "force_cluster": True,  # STUB: engine condition key unknown
-                            "force_wincap": True,
-                            "force_freegame": True,
-                        },
-                    ),
-                    Distribution(
-                        criteria="freegame",
-                        quota=0.1,
-                        conditions={
-                            "reel_weights": {
-                                self.basegame_type: {"BR0": 1},  # STUB
-                                self.freegame_type: {"FR0": 1},
-                            },
-                            "scatter_triggers": {4: 5, 5: 1},
-                            # "force_cluster": True,  # STUB: engine condition key unknown
-                            "force_wincap": False,
-                            "force_freegame": True,
-                        },
-                    ),
-                    Distribution(
-                        criteria="0",
-                        quota=0.4,
-                        win_criteria=0.0,
-                        conditions={
-                            "reel_weights": {self.basegame_type: {"BR0": 1}},  # STUB
-                            # "force_cluster": True,  # STUB
-                            "force_wincap": False,
-                            "force_freegame": False,
-                        },
-                    ),
-                    Distribution(
-                        criteria="basegame",
-                        quota=0.5,
-                        conditions={
-                            "reel_weights": {self.basegame_type: {"BR0": 1}},  # STUB
-                            # "force_cluster": True,  # STUB
-                            "force_wincap": False,
-                            "force_freegame": False,
-                        },
-                    ),
-                ],
-            ),
-            # FEATURE_Max_Multi_Tile: guaranteed cluster landing on Gold X-Tile, cost = 500x base bet
-            BetMode(
-                name="feature_max_multi_tile",
-                cost=500.0,
-                rtp=self.rtp,
-                max_win=mode_maxwins["feature_max_multi_tile"],
-                auto_close_disabled=False,
-                is_feature=True,
-                is_buybonus=False,
-                distributions=[
-                    Distribution(
-                        criteria="wincap",
-                        quota=0.001,
-                        win_criteria=mode_maxwins["feature_max_multi_tile"],
-                        conditions={
-                            "reel_weights": {
-                                self.basegame_type: {"BR0": 1},  # STUB: dedicated reel strip unknown
-                                self.freegame_type: {"FR0": 1, "WCAP": 5},
-                            },
-                            "scatter_triggers": {4: 1, 5: 2},
-                            # "force_x_tile_cluster": True,  # STUB: engine condition key unknown
-                            "force_wincap": True,
-                            "force_freegame": True,
-                        },
-                    ),
-                    Distribution(
-                        criteria="freegame",
-                        quota=0.1,
-                        conditions={
-                            "reel_weights": {
-                                self.basegame_type: {"BR0": 1},  # STUB
-                                self.freegame_type: {"FR0": 1},
-                            },
-                            "scatter_triggers": {4: 5, 5: 1},
-                            # "force_x_tile_cluster": True,  # STUB: engine condition key unknown
-                            "force_wincap": False,
-                            "force_freegame": True,
-                        },
-                    ),
-                    Distribution(
-                        criteria="0",
-                        quota=0.4,
-                        win_criteria=0.0,
-                        conditions={
-                            "reel_weights": {self.basegame_type: {"BR0": 1}},  # STUB
-                            "force_wincap": False,
-                            "force_freegame": False,
-                        },
-                    ),
-                    Distribution(
-                        criteria="basegame",
-                        quota=0.5,
-                        conditions={
-                            "reel_weights": {self.basegame_type: {"BR0": 1}},  # STUB
-                            "force_wincap": False,
-                            "force_freegame": False,
-                        },
-                    ),
-                ],
-            ),
-            # BONUS: 8 free spins, triggered by 3 scatters in base game or bought directly
             BetMode(
                 name="bonus",
-                cost=100.0,
+                cost=200,
                 rtp=self.rtp,
                 max_win=mode_maxwins["bonus"],
                 auto_close_disabled=False,
                 is_feature=True,
-                is_buybonus=True,
+                is_buybonus=False,
                 distributions=[
                     Distribution(
                         criteria="wincap",
@@ -422,9 +164,25 @@ class GameConfig(Config):
                                 self.basegame_type: {"BR0": 1},
                                 self.freegame_type: {"FR0": 1, "WCAP": 5},
                             },
-                            "mult_values": {  # STUB: actual weights unknown
-                                self.basegame_type: {2: 10, 3: 20, 4: 30, 5: 20, 10: 20, 20: 20, 50: 10},
-                                self.freegame_type: {2: 10, 3: 20, 4: 30, 5: 20, 10: 20, 20: 20, 50: 10},
+                            "mult_values": {
+                                self.basegame_type: {
+                                    2: 10,
+                                    3: 20,
+                                    4: 30,
+                                    5: 20,
+                                    10: 20,
+                                    20: 20,
+                                    50: 10,
+                                },
+                                self.freegame_type: {
+                                    2: 10,
+                                    3: 20,
+                                    4: 30,
+                                    5: 20,
+                                    10: 20,
+                                    20: 20,
+                                    50: 10,
+                                },
                             },
                             "scatter_triggers": {4: 1, 5: 2},
                             "force_wincap": True,
@@ -440,49 +198,6 @@ class GameConfig(Config):
                                 self.freegame_type: {"FR0": 1},
                             },
                             "scatter_triggers": {4: 5, 5: 1},
-                            "force_wincap": False,
-                            "force_freegame": True,
-                        },
-                    ),
-                ],
-            ),
-            # SUPER_BONUS: 10-13 free spins (4-7 scatters), triggered in base game or bought directly
-            BetMode(
-                name="super_bonus",
-                cost=300.0,
-                rtp=self.rtp,
-                max_win=mode_maxwins["super_bonus"],
-                auto_close_disabled=False,
-                is_feature=True,
-                is_buybonus=True,
-                distributions=[
-                    Distribution(
-                        criteria="wincap",
-                        quota=0.001,
-                        win_criteria=mode_maxwins["super_bonus"],
-                        conditions={
-                            "reel_weights": {
-                                self.super_basegame_type: {"BR0": 1},  # STUB: dedicated reel strip unknown
-                                self.freegame_type: {"FR0": 1, "WCAP": 5},
-                            },
-                            "mult_values": {  # STUB
-                                self.super_basegame_type: {2: 10, 3: 20, 4: 30, 5: 20, 10: 20, 20: 20, 50: 10},
-                                self.freegame_type: {2: 10, 3: 20, 4: 30, 5: 20, 10: 20, 20: 20, 50: 10},
-                            },
-                            "scatter_triggers": {5: 1, 6: 2, 7: 3},  # STUB: relative weights unknown
-                            "force_wincap": True,
-                            "force_freegame": True,
-                        },
-                    ),
-                    Distribution(
-                        criteria="freegame",
-                        quota=0.1,
-                        conditions={
-                            "reel_weights": {
-                                self.super_basegame_type: {"BR0": 1},  # STUB
-                                self.freegame_type: {"FR0": 1},
-                            },
-                            "scatter_triggers": {5: 5, 6: 2, 7: 1},  # STUB: relative weights unknown
                             "force_wincap": False,
                             "force_freegame": True,
                         },
