@@ -188,7 +188,7 @@ class GameConfig(Config):
                     ),
                     Distribution(
                         criteria="basegame",
-                        quota=0.5,
+                        quota=0.499,
                         conditions={
                             "reel_weights": {self.basegame_type: {"BR0": 1}},
                             "force_wincap": False,
