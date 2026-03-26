@@ -1,10 +1,6 @@
 # Sweet Party — Game Engine
 
-7x7 cluster-pays cascade slot game.
-
-## Current State: Gold X-Tile
-
-The engine implements the core gameplay loop with 2x/4x symbol multipliers and the Gold X-Tile feature. Buy modes will be layered on in future iterations.
+7x7 cluster-pays cascade slot game. Reference: [Fruit Party (Pragmatic Play)](https://www.pragmaticplay.com/en/games/fruit-party-slot/).
 
 ## Symbols
 
@@ -28,6 +24,7 @@ No wild symbols in this game.
 - **Wincap:** 10,000x base bet
 - **Target RTP:** 96%
 - **Cluster size cap:** Clusters larger than 15 pay at the size-15 rate
+- **Max multiplier product:** 1024x
 
 ## Paytable
 
@@ -51,7 +48,7 @@ Payouts are in multiples of base bet.
 
 Every paying symbol (h1-h7) has a random chance to carry a **2x** or **4x** multiplier on both the initial board reveal and each tumble cascade.
 
-- **Probability:** Configurable per symbol via `multiplier_chance` (default 5%)
+- **Probability:** 5% per symbol
 - **Distribution:** Weighted selection between 2x (75%) and 4x (25%)
 - **Application:** When a winning cluster forms, all multipliers within the cluster are **multiplied together** (product, not sum)
 - **Cap:** The product of multipliers is capped at **1024x**
@@ -60,17 +57,13 @@ Every paying symbol (h1-h7) has a random chance to carry a **2x** or **4x** mult
 
 ## Gold X-Tile
 
-A special board position that grants multipliers to an entire winning cluster when any symbol from that cluster lands on the tile.
+A special board position that grants multipliers to an entire winning cluster when any symbol from that cluster lands on the tile. **Only spawns during free spins (BONUS mode), never in base game.**
 
-- **Spawn:** Each board reveal and each tumble cascade has an independent configurable chance to place an X-Tile on a random board cell
+- **Spawn:** Each board reveal and each tumble cascade has a 10% chance to place an X-Tile on a random board cell
 - **Limit:** At most 1 X-Tile can exist on the board at any time
 - **Consumed on use:** When a winning cluster includes a symbol on the X-Tile position, the tile is consumed
 - **Effect:** Every symbol in that cluster that does NOT already have a native multiplier gets an independent random 2x or 4x (same weighted distribution as native multipliers: 75% for 2x, 25% for 4x)
 - **Respawn:** After consumption (or if none exists), the next tumble has a fresh chance to spawn a new X-Tile
-- **Spawn chance by gametype:**
-  - Basegame: 5%
-  - Freegame (BONUS): 10%
-  - SUPER_BONUS: guaranteed on initial tumble; 10% after (not yet implemented)
 - **Events:** `xTileSpawn` (with position) and `xTileConsume` (with cluster info) are emitted
 
 ## Game Flow
@@ -79,37 +72,25 @@ A special board position that grants multipliers to an entire winning cluster wh
 
 ```
 1. Draw board from reel strips
-2. Roll for Gold X-Tile spawn
-3. Detect clusters (5+ adjacent matching symbols)
-4. If X-Tile overlaps a winning cluster, grant multipliers to the cluster
-5. Calculate wins from paytable (including multiplier products)
-6. Mark winning symbols for removal
-7. WHILE there are wins AND wincap not hit:
+2. Detect clusters (5+ adjacent matching symbols)
+3. Calculate wins from paytable (including multiplier products)
+4. Mark winning symbols for removal
+5. WHILE there are wins AND wincap not hit:
    a. Tumble: remove winning symbols, cascade new ones from above
-   b. Roll for Gold X-Tile spawn (if none present)
-   c. Detect new clusters
-   d. If X-Tile overlaps a winning cluster, grant multipliers
-   e. Calculate wins
-8. Check for freespin trigger (3+ scatters)
-9. If triggered, run freespin feature
-10. Finalize win (capped at 10,000x)
+   b. Detect new clusters
+   c. Calculate wins
+6. Check for freespin trigger (3+ scatters)
+7. If triggered, run BONUS freespin feature (8 spins)
+8. Finalize win (capped at 10,000x)
 ```
 
-### Freespin Feature
+### BONUS (Free Spins)
 
-Triggered by landing 3+ scatter symbols on the initial board (before cascades).
+Triggered by landing 3+ scatter symbols on the initial base game board. Awards **8 free spins**.
 
-**Initial spins awarded (from base game):**
-
-| Scatters | Spins | Type        |
-| -------- | ----- | ----------- |
-| 3        | 8     | BONUS       |
-| 4        | 10    | SUPER_BONUS |
-| 5        | 11    | SUPER_BONUS |
-| 6        | 12    | SUPER_BONUS |
-| 7        | 13    | SUPER_BONUS |
-
-**Retrigger (during freespins):**
+Each free spin follows the same cascade flow as the base game, plus:
+- **Gold X-Tile:** 10% chance to spawn per board reveal / tumble
+- **Retrigger:** Landing 3+ scatters during a free spin awards extra spins:
 
 | Scatters | Extra Spins |
 | -------- | ----------- |
@@ -119,13 +100,19 @@ Triggered by landing 3+ scatter symbols on the initial board (before cascades).
 | 6        | +12         |
 | 7        | +14         |
 
-Each freespin follows the same cascade flow as the base game. Scatter counts above 7 are capped to 7 for trigger lookups.
+Scatter counts above 7 are capped to 7 for retrigger lookups.
 
 ## Bet Modes
 
-Currently only the **base** mode is implemented (cost: 1x base bet).
+| Mode       | Cost       | Description                                                  |
+| ---------- | ---------- | ------------------------------------------------------------ |
+| base       | 1x         | Standard play. 3+ scatters trigger BONUS (8 free spins)     |
+| FEATURE_5X | 3x         | 5x higher chance of landing scatter symbols (bonus trigger)  |
+| BONUS      | 100x       | Direct buy into 8 free spins with 10% X-Tile chance per spin |
 
-### Simulation Distributions
+Currently only the **base** mode is implemented.
+
+### Simulation Distributions (base mode)
 
 | Criteria | Quota | Description                                     |
 | -------- | ----- | ----------------------------------------------- |
@@ -136,29 +123,18 @@ Currently only the **base** mode is implemented (cost: 1x base bet).
 
 ## Reel Strips
 
-Placeholder strips are currently in place. These need optimization tuning to hit the 96% RTP target.
-
-| Strip | Rows | Scatters/Reel | Usage                     |
-| ----- | ---- | ------------- | ------------------------- |
-| BR0   | 70   | 2             | Base game                 |
-| FR0   | 80   | 1             | Free game                 |
-| WCAP  | 42   | 5             | Wincap forcing (freegame) |
+| Strip | Rows | Scatters/Reel | Usage                                          |
+| ----- | ---- | ------------- | ---------------------------------------------- |
+| BR0   | 70   | 1-3           | Base game                                      |
+| FR0   | 80   | 1-2           | Free game                                      |
+| WCAP  | 42   | 0             | Wincap forcing (freegame) — h1/h2 heavy, no scatters |
 
 ## Edge Cases
 
 - **Clusters > 15 symbols:** Pay at the size-15 rate. Actual cluster size is preserved in win event data.
-- **Scatters > 7:** Capped to 7 for freespin trigger/retrigger lookups.
+- **Scatters > 7:** Capped to 7 for retrigger lookups.
 - **Wincap during cascade:** Cascade terminates immediately when running win reaches 10,000x.
 - **Repeat validation:** Spins that fail their distribution criteria (e.g., forced freegame but no trigger, zero-criteria but non-zero win) are re-drawn.
-
-## Not Yet Implemented
-
-The following features from the spec are planned for future iterations:
-
-- **Buy modes:** FEATURE_5X (3x cost), FEATURE_Cluster Drop (25x), FEATURE_Max Multi Tile (500x)
-- **BONUS buy:** 100x cost, direct entry to 8 free spins with 10% X-Tile chance per spin
-- **SUPER_BONUS buy:** 300x cost, direct entry to free spins with guaranteed X-Tile per spin
-- **SUPER_BONUS guaranteed X-Tile:** Every spin has a guaranteed X-Tile on the initial board
 
 ## Running
 
@@ -173,6 +149,15 @@ Configuration in `run.py`:
 - `num_sim_args`: simulation count per bet mode
 - `run_conditions`: toggle sims, optimization, analysis, format checks
 
+### Monte Carlo Pipeline
+
+```bash
+cd games/sweet_party
+PYTHONPATH=../.. python monte_carlo.py --spins 100000 --threads 10
+```
+
+Runs the full pipeline: simulation → Rust optimization → PAR sheet analysis → report.
+
 ## File Structure
 
 ```
@@ -184,9 +169,10 @@ games/sweet_party/
   game_override.py      # State resets, repeat validation
   game_events.py        # X-Tile spawn/consume events
   game_optimization.py  # RTP optimization parameters
+  monte_carlo.py        # Full Monte Carlo pipeline (sim + optimize + analyze)
   run.py                # Entry point
   reels/
     BR0.csv             # Base game reel strip
     FR0.csv             # Free game reel strip
-    WCAP.csv            # Wincap reel strip
+    WCAP.csv            # Wincap reel strip (high-value, no scatters)
 ```

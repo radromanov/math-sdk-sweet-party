@@ -123,7 +123,7 @@ class GameConfig(Config):
         self.special_symbols: dict[str, list[str]] = {"wild": [], "scatter": ["S"], "multiplier": []}
 
         self.freespin_triggers = {
-            self.basegame_type: {3: 8, 4: 10, 5: 11, 6: 12, 7: 13},
+            self.basegame_type: {3: 8},
             self.freegame_type: {3: 6, 4: 8, 5: 10, 6: 12, 7: 14},
         }
         self.anticipation_triggers = {
@@ -139,9 +139,9 @@ class GameConfig(Config):
         self.multiplier_product_cap: int = 1024
         self.multiplier_excluded_symbols: set[str] = {"S"}
 
-        # Gold X-Tile configuration
+        # Gold X-Tile configuration (freegame only per spec)
         self.xtile_chance: dict[str, float] = {
-            self.basegame_type: 0.05,
+            self.basegame_type: 0.0,
             self.freegame_type: 0.10,
         }
 
@@ -170,7 +170,7 @@ class GameConfig(Config):
                                 self.basegame_type: {"BR0": 1},
                                 self.freegame_type: {"FR0": 1, "WCAP": 5},
                             },
-                            "scatter_triggers": {3: 1, 4: 2, 5: 3, 6: 2, 7: 1},
+                            "scatter_triggers": {3: 1},
                             "force_wincap": True,
                             "force_freegame": True,
                         },
@@ -183,7 +183,7 @@ class GameConfig(Config):
                                 self.basegame_type: {"BR0": 1},
                                 self.freegame_type: {"FR0": 1},
                             },
-                            "scatter_triggers": {3: 5, 4: 2, 5: 1, 6: 1, 7: 1},
+                            "scatter_triggers": {3: 1},
                             "force_wincap": False,
                             "force_freegame": True,
                         },
