@@ -3,19 +3,13 @@ from game_executables import GameExecutables
 
 class GameStateOverride(GameExecutables):
     """
-    This class is is used to override or extend universal state.py functions.
+    This class is used to override or extend universal state.py functions.
     e.g: A specific game may have custom book properties to reset
     """
 
     def reset_book(self):
-        # Reset global values used across multiple projects
         super().reset_book()
-        # Reset parameters relevant to local game only
         self.tumble_win = 0
-
-    def reset_fs_spin(self):
-        super().reset_fs_spin()
-        self.reset_grid_mults()
 
     def assign_special_sym_function(self):
         pass
