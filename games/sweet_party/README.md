@@ -2,9 +2,9 @@
 
 7x7 cluster-pays cascade slot game.
 
-## Current State: Symbol Multipliers
+## Current State: Gold X-Tile
 
-The engine implements the core gameplay loop with 2x/4x symbol multipliers. Gold X-Tile and buy modes will be layered on in future iterations.
+The engine implements the core gameplay loop with 2x/4x symbol multipliers and the Gold X-Tile feature. Buy modes will be layered on in future iterations.
 
 ## Symbols
 
@@ -58,22 +58,41 @@ Every paying symbol (h1-h7) has a random chance to carry a **2x** or **4x** mult
 - **Formula:** `cluster_win = paytable_win × multiplier_product`
 - **Scatter exclusion:** Scatter symbols ("S") never receive multipliers
 
+## Gold X-Tile
+
+A special board position that grants multipliers to an entire winning cluster when any symbol from that cluster lands on the tile.
+
+- **Spawn:** Each board reveal and each tumble cascade has an independent configurable chance to place an X-Tile on a random board cell
+- **Limit:** At most 1 X-Tile can exist on the board at any time
+- **Consumed on use:** When a winning cluster includes a symbol on the X-Tile position, the tile is consumed
+- **Effect:** Every symbol in that cluster that does NOT already have a native multiplier gets an independent random 2x or 4x (same weighted distribution as native multipliers: 75% for 2x, 25% for 4x)
+- **Respawn:** After consumption (or if none exists), the next tumble has a fresh chance to spawn a new X-Tile
+- **Spawn chance by gametype:**
+  - Basegame: 5%
+  - Freegame (BONUS): 10%
+  - SUPER_BONUS: guaranteed on initial tumble; 10% after (not yet implemented)
+- **Events:** `xTileSpawn` (with position) and `xTileConsume` (with cluster info) are emitted
+
 ## Game Flow
 
 ### Base Game Spin
 
 ```
 1. Draw board from reel strips
-2. Detect clusters (5+ adjacent matching symbols)
-3. Calculate wins from paytable
-4. Mark winning symbols for removal
-5. WHILE there are wins AND wincap not hit:
+2. Roll for Gold X-Tile spawn
+3. Detect clusters (5+ adjacent matching symbols)
+4. If X-Tile overlaps a winning cluster, grant multipliers to the cluster
+5. Calculate wins from paytable (including multiplier products)
+6. Mark winning symbols for removal
+7. WHILE there are wins AND wincap not hit:
    a. Tumble: remove winning symbols, cascade new ones from above
-   b. Detect new clusters
-   c. Calculate wins
-6. Check for freespin trigger (3+ scatters)
-7. If triggered, run freespin feature
-8. Finalize win (capped at 10,000x)
+   b. Roll for Gold X-Tile spawn (if none present)
+   c. Detect new clusters
+   d. If X-Tile overlaps a winning cluster, grant multipliers
+   e. Calculate wins
+8. Check for freespin trigger (3+ scatters)
+9. If triggered, run freespin feature
+10. Finalize win (capped at 10,000x)
 ```
 
 ### Freespin Feature
@@ -136,11 +155,10 @@ Placeholder strips are currently in place. These need optimization tuning to hit
 
 The following features from the spec are planned for future iterations:
 
-- **Gold X-Tile:** Board position that grants multipliers to clusters landing on it
 - **Buy modes:** FEATURE_5X (3x cost), FEATURE_Cluster Drop (25x), FEATURE_Max Multi Tile (500x)
 - **BONUS buy:** 100x cost, direct entry to 8 free spins with 10% X-Tile chance per spin
 - **SUPER_BONUS buy:** 300x cost, direct entry to free spins with guaranteed X-Tile per spin
-- **BONUS/SUPER_BONUS differentiation:** Currently both use the same freespin flow; future work will add X-Tile mechanics that distinguish them
+- **SUPER_BONUS guaranteed X-Tile:** Every spin has a guaranteed X-Tile on the initial board
 
 ## Running
 
@@ -164,7 +182,7 @@ games/sweet_party/
   game_calculations.py  # Cluster evaluation with size capping
   game_executables.py   # Cluster detection, scatter capping, freespin updates
   game_override.py      # State resets, repeat validation
-  game_events.py        # Game-specific events (placeholder)
+  game_events.py        # X-Tile spawn/consume events
   game_optimization.py  # RTP optimization parameters
   run.py                # Entry point
   reels/

@@ -14,6 +14,7 @@ class GameStateOverride(GameExecutables):
     def reset_book(self) -> None:
         super().reset_book()
         self.tumble_win = 0
+        self.xtile_position: tuple[int, int] | None = None
 
     def assign_special_sym_function(self) -> None:
         """Register random multiplier assignment for all paying symbols."""

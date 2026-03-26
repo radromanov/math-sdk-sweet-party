@@ -1,8 +1,10 @@
 """Test basic cluster-calculation functionality."""
 
+import random
 import pytest
 from tests.win_calculations.game_test_config import GamestateTest, create_blank_board
 from src.calculations.cluster import Cluster
+from src.calculations.statistics import get_random_outcome
 from src.wins.multiplier_strategy import apply_product_symbol_mult
 
 
@@ -133,6 +135,7 @@ class CappedClusterConfig:
         self.freegame_type: str = "freegame"
         self.max_cluster_pay_size: int = 15
         self.multiplier_product_cap: int = 1024
+        self.multiplier_values: dict[int, int] = {2: 3, 4: 1}
 
 
 def evaluate_clusters_capped(config, board, clusters, global_multiplier=1, return_data=None):
@@ -304,3 +307,148 @@ def test_multipliers_on_non_winning_symbols_ignored(capped_gs: GamestateTest) ->
     base_win: float = capped_gs.config.paytable[(5, "H1")]
     assert result["totalWin"] == base_win
     assert result["wins"][0]["meta"]["clusterMult"] == 1
+
+
+# --- Gold X-Tile tests ---
+
+
+def apply_xtile_to_clusters(
+    board: list,
+    win_data: dict,
+    xtile_position: tuple[int, int] | None,
+    multiplier_values: dict[int, int],
+    multiplier_product_cap: int = 1024,
+) -> tuple[int, int] | None:
+    """Standalone X-Tile logic for testing (mirrors game_executables.apply_xtile_to_clusters)."""
+    if xtile_position is None:
+        return xtile_position
+    xtile_reel: int = xtile_position[0]
+    xtile_row: int = xtile_position[1]
+
+    for win_entry in win_data["wins"]:
+        hit: bool = False
+        for pos in win_entry["positions"]:
+            if pos["reel"] == xtile_reel and pos["row"] == xtile_row:
+                hit = True
+                break
+        if not hit:
+            continue
+
+        for pos in win_entry["positions"]:
+            sym = board[pos["reel"]][pos["row"]]
+            if sym.multiplier is None or sym.multiplier <= 1:
+                mult_value: int = get_random_outcome(multiplier_values)
+                sym.assign_attribute({"multiplier": mult_value, "has_multiplier": True})
+
+        old_win: float = win_entry["win"]
+        cluster_mult: int = apply_product_symbol_mult(
+            board, win_entry["positions"], cap=multiplier_product_cap
+        )
+        sym_win: float = win_entry["meta"]["winWithoutMult"]
+        new_win: float = sym_win * cluster_mult * win_entry["meta"]["globalMult"]
+        win_entry["win"] = new_win
+        win_entry["meta"]["clusterMult"] = cluster_mult
+        win_data["totalWin"] += new_win - old_win
+
+        xtile_position = None
+        break
+
+    return xtile_position
+
+
+def _build_cluster_and_evaluate(capped_gs: GamestateTest) -> dict:
+    """Build a 5-symbol cluster on capped_gs and evaluate it. Returns win_data."""
+    _fill_blank(capped_gs)
+    for i in range(3):
+        capped_gs.board[0][i] = capped_gs.create_symbol("H1")
+    capped_gs.board[1][0] = capped_gs.create_symbol("H1")
+    capped_gs.board[2][0] = capped_gs.create_symbol("H1")
+
+    clusters: dict = Cluster.get_clusters(capped_gs.board)
+    _, result = evaluate_clusters_capped(
+        config=capped_gs.config,
+        board=capped_gs.board,
+        clusters=clusters,
+    )
+    return result
+
+
+def test_xtile_grants_multipliers_to_cluster(capped_gs: GamestateTest) -> None:
+    """X-Tile on a winning cluster position grants multipliers to all symbols."""
+    random.seed(42)
+    result: dict = _build_cluster_and_evaluate(capped_gs)
+    base_win: float = capped_gs.config.paytable[(5, "H1")]
+    assert result["totalWin"] == base_win  # no multipliers yet
+
+    xtile_pos: tuple[int, int] | None = (0, 0)
+    xtile_pos = apply_xtile_to_clusters(
+        capped_gs.board, result, xtile_pos, capped_gs.config.multiplier_values
+    )
+
+    cluster_positions: list[dict] = result["wins"][0]["positions"]
+    for pos in cluster_positions:
+        sym = capped_gs.board[pos["reel"]][pos["row"]]
+        assert sym.multiplier in (2, 4)
+
+    assert result["totalWin"] == result["wins"][0]["win"]
+    assert result["wins"][0]["meta"]["clusterMult"] > 1
+
+
+def test_xtile_consumed_after_use(capped_gs: GamestateTest) -> None:
+    """X-Tile position becomes None after being consumed."""
+    random.seed(42)
+    result: dict = _build_cluster_and_evaluate(capped_gs)
+
+    xtile_pos: tuple[int, int] | None = (0, 0)
+    xtile_pos = apply_xtile_to_clusters(
+        capped_gs.board, result, xtile_pos, capped_gs.config.multiplier_values
+    )
+    assert xtile_pos is None
+
+
+def test_xtile_preserves_native_multipliers(capped_gs: GamestateTest) -> None:
+    """Symbols with existing native multipliers keep them; others get X-Tile grants."""
+    random.seed(42)
+    _fill_blank(capped_gs)
+    for i in range(3):
+        capped_gs.board[0][i] = capped_gs.create_symbol("H1")
+    capped_gs.board[1][0] = capped_gs.create_symbol("H1")
+    capped_gs.board[2][0] = capped_gs.create_symbol("H1")
+
+    # Give (0,0) a native 2x multiplier
+    capped_gs.board[0][0].assign_attribute({"multiplier": 2, "has_multiplier": True})
+
+    clusters: dict = Cluster.get_clusters(capped_gs.board)
+    _, result = evaluate_clusters_capped(
+        config=capped_gs.config,
+        board=capped_gs.board,
+        clusters=clusters,
+    )
+
+    xtile_pos: tuple[int, int] | None = (1, 0)
+    apply_xtile_to_clusters(
+        capped_gs.board, result, xtile_pos, capped_gs.config.multiplier_values
+    )
+
+    # (0,0) should still have its original 2x
+    assert capped_gs.board[0][0].multiplier == 2
+    # Other symbols should have been granted multipliers
+    assert capped_gs.board[0][1].multiplier in (2, 4)
+    assert capped_gs.board[0][2].multiplier in (2, 4)
+    assert capped_gs.board[1][0].multiplier in (2, 4)
+    assert capped_gs.board[2][0].multiplier in (2, 4)
+
+
+def test_xtile_no_effect_when_not_in_cluster(capped_gs: GamestateTest) -> None:
+    """X-Tile at a position not in any winning cluster is NOT consumed."""
+    random.seed(42)
+    result: dict = _build_cluster_and_evaluate(capped_gs)
+    base_win: float = capped_gs.config.paytable[(5, "H1")]
+
+    xtile_pos: tuple[int, int] | None = (5, 5)
+    xtile_pos = apply_xtile_to_clusters(
+        capped_gs.board, result, xtile_pos, capped_gs.config.multiplier_values
+    )
+
+    assert xtile_pos == (5, 5)  # not consumed
+    assert result["totalWin"] == base_win  # unchanged

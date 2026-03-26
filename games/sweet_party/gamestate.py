@@ -10,12 +10,14 @@ class GameState(GameStateOverride):
         while self.repeat:
             self.reset_book()
             self.draw_board()
+            self.maybe_spawn_xtile()
 
             self.get_clusters_update_wins()
             self.emit_tumble_win_events()
 
             while self.win_data["totalWin"] > 0 and not (self.wincap_triggered):
                 self.tumble_game_board()
+                self.maybe_spawn_xtile()
                 self.get_clusters_update_wins()
                 self.emit_tumble_win_events()
 
@@ -35,12 +37,14 @@ class GameState(GameStateOverride):
         while self.fs < self.tot_fs:
             self.update_freespin()
             self.draw_board()
+            self.maybe_spawn_xtile()
 
             self.get_clusters_update_wins()
             self.emit_tumble_win_events()
 
             while self.win_data["totalWin"] > 0 and not (self.wincap_triggered):
                 self.tumble_game_board()
+                self.maybe_spawn_xtile()
                 self.get_clusters_update_wins()
                 self.emit_tumble_win_events()
 

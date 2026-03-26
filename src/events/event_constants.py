@@ -30,3 +30,5 @@ class EventConstants(Enum):
 
     # Special symbol events
     UPDATE_GLOBAL_MULT = "updateGlobalMult"
+    XTILE_SPAWN = "xTileSpawn"
+    XTILE_CONSUME = "xTileConsume"
