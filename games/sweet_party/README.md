@@ -111,8 +111,6 @@ Scatter counts above 7 are capped to 7 for retrigger lookups.
 | FEATURE_5X | 3x         | 5x higher chance of landing scatter symbols (bonus trigger)  |
 | BONUS      | 100x       | Direct buy into 8 free spins with 10% X-Tile chance per spin |
 
-**base** and **feature_5x** are implemented. BONUS buy is not yet implemented.
-
 ### Simulation Distributions
 
 **base mode:**
@@ -132,6 +130,13 @@ Scatter counts above 7 are capped to 7 for retrigger lookups.
 | freegame | 50%   | Forces freespin trigger (5x base rate)          |
 | 0        | 20%   | Guarantees zero-win outcome                     |
 | basegame | 29.9% | Normal gameplay                                 |
+
+**bonus mode** (cost: 100x, direct buy into free spins):
+
+| Criteria | Quota | Description                                                    |
+| -------- | ----- | -------------------------------------------------------------- |
+| wincap   | 0.1%  | Forces wincap hit at 10,000x                                   |
+| freegame | 99.9% | Normal 8 free spin session (10% X-Tile chance, retrigger able) |
 
 ## Reel Strips
 
