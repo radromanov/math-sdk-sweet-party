@@ -90,6 +90,7 @@ A special board position that grants multipliers to an entire winning cluster wh
 Triggered by landing 3+ scatter symbols on the initial base game board. Awards **8 free spins**.
 
 Each free spin follows the same cascade flow as the base game, plus:
+
 - **Gold X-Tile:** 10% chance to spawn once per free spin; persists through all tumbles
 - **Retrigger:** Landing 3+ scatters during a free spin awards extra spins:
 
@@ -105,11 +106,11 @@ Scatter counts above 7 are capped to 7 for retrigger lookups.
 
 ## Bet Modes
 
-| Mode       | Cost       | Description                                                  |
-| ---------- | ---------- | ------------------------------------------------------------ |
-| base       | 1x         | Standard play. 3+ scatters trigger BONUS (8 free spins)     |
-| FEATURE_5X | 3x         | 5x higher chance of landing scatter symbols (bonus trigger)  |
-| BONUS      | 100x       | Direct buy into 8 free spins with 10% X-Tile chance per spin |
+| Mode       | Cost | Description                                                  |
+| ---------- | ---- | ------------------------------------------------------------ |
+| base       | 1x   | Standard play. 3+ scatters trigger BONUS (8 free spins)      |
+| FEATURE_5X | 3x   | 5x higher chance of landing scatter symbols (bonus trigger)  |
+| BONUS      | 100x | Direct buy into 8 free spins with 10% X-Tile chance per spin |
 
 ### Simulation Distributions
 
@@ -140,10 +141,10 @@ Scatter counts above 7 are capped to 7 for retrigger lookups.
 
 ## Reel Strips
 
-| Strip | Rows | Scatters/Reel | Usage                                          |
-| ----- | ---- | ------------- | ---------------------------------------------- |
-| BR0   | 70   | 1-3           | Base game                                      |
-| FR0   | 80   | 1-2           | Free game                                      |
+| Strip | Rows | Scatters/Reel | Usage                                                |
+| ----- | ---- | ------------- | ---------------------------------------------------- |
+| BR0   | 70   | 1-3           | Base game                                            |
+| FR0   | 80   | 1-2           | Free game                                            |
 | WCAP  | 42   | 0             | Wincap forcing (freegame) — h1/h2 heavy, no scatters |
 
 ## Edge Cases
@@ -152,44 +153,3 @@ Scatter counts above 7 are capped to 7 for retrigger lookups.
 - **Scatters > 7:** Capped to 7 for retrigger lookups.
 - **Wincap during cascade:** Cascade terminates immediately when running win reaches 10,000x.
 - **Repeat validation:** Spins that fail their distribution criteria (e.g., forced freegame but no trigger, zero-criteria but non-zero win) are re-drawn.
-
-## Running
-
-```bash
-cd games/sweet_party
-python run.py
-```
-
-Configuration in `run.py`:
-
-- `num_threads`: parallel simulation threads (default: 10)
-- `num_sim_args`: simulation count per bet mode
-- `run_conditions`: toggle sims, optimization, analysis, format checks
-
-### Monte Carlo Pipeline
-
-```bash
-cd games/sweet_party
-PYTHONPATH=../.. python monte_carlo.py --spins 100000 --threads 10
-```
-
-Runs the full pipeline: simulation → Rust optimization → PAR sheet analysis → report.
-
-## File Structure
-
-```
-games/sweet_party/
-  game_config.py        # Paytable, symbols, triggers, bet modes, reel loading
-  gamestate.py          # Main spin loop and freespin loop
-  game_calculations.py  # Cluster evaluation with size capping
-  game_executables.py   # Cluster detection, scatter capping, freespin updates
-  game_override.py      # State resets, repeat validation
-  game_events.py        # X-Tile spawn/apply events
-  game_optimization.py  # RTP optimization parameters
-  monte_carlo.py        # Full Monte Carlo pipeline (sim + optimize + analyze)
-  run.py                # Entry point
-  reels/
-    BR0.csv             # Base game reel strip
-    FR0.csv             # Free game reel strip
-    WCAP.csv            # Wincap reel strip (high-value, no scatters)
-```

@@ -1,3 +1,12 @@
+import sys
+from pathlib import Path
+
+# Ensure the project root is on sys.path so `src`, `utils`, and
+# `optimization_program` imports resolve regardless of working directory.
+_PROJECT_ROOT = str(Path(__file__).resolve().parent.parent.parent)
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
+
 from gamestate import GameState
 from game_config import GameConfig
 from game_optimization import OptimizationSetup
@@ -16,7 +25,9 @@ if __name__ == "__main__":
     profiling = False
 
     num_sim_args = {
-        "base": int(1e4),
+        "base": int(1e5),
+        "feature_5x": int(1e5),
+        "bonus": int(1e5),
     }
 
     run_conditions = {
@@ -25,7 +36,7 @@ if __name__ == "__main__":
         "run_analysis": True,
         "run_format_checks": True,
     }
-    target_modes = ["base"]
+    target_modes = ["base", "feature_5x", "bonus"]
 
     config = GameConfig()
     gamestate = GameState(config)

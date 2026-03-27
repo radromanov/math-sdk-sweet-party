@@ -15,6 +15,7 @@ class GameState(GameStateOverride):
                 # Buy bonus: skip base game, go straight to 8 free spins
                 self.triggered_freegame = True
                 self.tot_fs = 8
+                self.refresh_special_syms()
                 self.record({"kind": 3, "symbol": "scatter", "gametype": self.config.basegame_type})
                 fs_trigger_event(self, basegame_trigger=True, freegame_trigger=False)
                 self.run_freespin()

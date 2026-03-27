@@ -116,7 +116,7 @@ class OptimizationSetup:
                         rtp=0.01, av_win=wincaps["bonus"], search_conditions=wincaps["bonus"]
                     ).return_dict(),
                     "freegame": ConstructConditions(
-                        rtp=0.95, hr=200, search_conditions={"symbol": "scatter"}
+                        rtp=0.95, hr=1, search_conditions={"symbol": "scatter"}
                     ).return_dict(),
                 },
                 "scaling": ConstructScaling(
