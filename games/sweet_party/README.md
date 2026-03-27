@@ -2,6 +2,8 @@
 
 7x7 cluster-pays cascade slot game. Reference: [Fruit Party (Pragmatic Play)](https://www.pragmaticplay.com/en/games/fruit-party-slot/).
 
+Built as per [Sweet Party](https://www.notion.so/Sweet-Party-Test-Task-320f6cd0098d80cab522efce3f3a212b) documentation.
+
 ## Symbols
 
 | Symbol | Type    | Min Cluster Pay (5) | Max Cluster Pay (15) |
