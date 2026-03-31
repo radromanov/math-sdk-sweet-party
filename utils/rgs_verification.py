@@ -206,23 +206,33 @@ def execute_all_tests(config, excluded_modes=[]):
         name = bet_mode.get_name()
         cost = bet_mode.get_cost()
         if name not in excluded_modes:
-            book_name = f"books_{name}.jsonl.zst"
             lookup_name = f"lookUpTable_{name}_0.csv"
-            book_file = os.path.join(config.publish_path, book_name)
             lut_file = os.path.join(config.publish_path, lookup_name)
 
-            if not (os.path.exists(book_file)) or not (os.path.exists(lut_file)):
-                raise RuntimeError("Books/Lookup file does not exist.")
-
-            win_dist, lut_payouts, weights_range, min_win, max_win = verify_lookup_format(lut_file)
-            # Fast path: use verification.json sidecar if available
             verification_file = os.path.join(
                 os.path.join(config.library_path, "configs"), f"books_{name}.verification.json"
             )
+
             if os.path.exists(verification_file):
-                print(f"[FAST PATH] Using verification sidecar for {name}")
                 with open(verification_file, "r", encoding="UTF-8") as vf:
                     verification = json.load(vf)
+                book_name = verification.get("filename", f"books_{name}.jsonl.zst")
+                is_compressed = verification.get("is_compressed", True)
+                if is_compressed:
+                    book_file = os.path.join(config.publish_path, book_name)
+                else:
+                    book_file = os.path.join(config.library_path, "books", book_name)
+            else:
+                book_name = f"books_{name}.jsonl.zst"
+                book_file = os.path.join(config.publish_path, book_name)
+
+            if not (os.path.exists(book_file)) or not (os.path.exists(lut_file)):
+                raise RuntimeError(f"Books/Lookup file does not exist. Looked for {book_file} and {lut_file}")
+
+            win_dist, lut_payouts, weights_range, min_win, max_win = verify_lookup_format(lut_file)
+            # Fast path: use verification.json sidecar if available
+            if os.path.exists(verification_file):
+                print(f"[FAST PATH] Using verification sidecar for {name}")
 
                 actual_hash = get_sha_256(book_file)
                 assert (

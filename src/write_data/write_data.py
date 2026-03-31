@@ -288,6 +288,8 @@ def output_lookup_and_force_files(
             "payout_hash": payout_hash,
             "file_hash": file_hash,
             "num_entries": len(merged_payouts),
+            "filename": os.path.basename(book_file),
+            "is_compressed": compress,
         }
         verification_path = os.path.join(gamestate.output_files.config_path, f"books_{betmode}.verification.json")
         with open(verification_path, "w", encoding="UTF-8") as f:
