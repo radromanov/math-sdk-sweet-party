@@ -46,3 +46,6 @@ class GameStateOverride(GameExecutables):
 
             if self.win_manager.running_bet_win == 0 and self.criteria != "0":
                 self.repeat = True
+
+            if self.get_current_betmode().get_buybonus() and self.win_manager.basegame_wins > 0:
+                self.repeat = True

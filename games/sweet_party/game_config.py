@@ -281,8 +281,10 @@ class GameConfig(Config):
                         win_criteria=mode_maxwins["bonus"],
                         conditions={
                             "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
                                 self.freegame_type: {"FR0": 1, "WCAP": 5},
                             },
+                            "scatter_triggers": {3: 1},
                             "force_wincap": True,
                             "force_freegame": True,
                         },
@@ -292,8 +294,10 @@ class GameConfig(Config):
                         quota=0.999,
                         conditions={
                             "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
                                 self.freegame_type: {"FR0": 1},
                             },
+                            "scatter_triggers": {3: 1},
                             "force_wincap": False,
                             "force_freegame": True,
                         },
