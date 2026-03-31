@@ -1,9 +1,10 @@
 """Sweet Party cluster game configuration file/setup"""
 
 import os
+
+from src.config.betmode import BetMode
 from src.config.config import Config
 from src.config.distributions import Distribution
-from src.config.betmode import BetMode
 
 
 class GameConfig(Config):
@@ -120,15 +121,21 @@ class GameConfig(Config):
         self.paytable = self.convert_range_table(pay_group)
 
         self.include_padding = True
-        self.special_symbols: dict[str, list[str]] = {"wild": [], "scatter": ["S"], "multiplier": []}
+        self.special_symbols: dict[str, list[str]] = {
+            "wild": [],
+            "scatter": ["S"],
+            "multiplier": [],
+        }
 
         self.freespin_triggers = {
             self.basegame_type: {3: 8},
             self.freegame_type: {3: 6, 4: 8, 5: 10, 6: 12, 7: 14},
         }
         self.anticipation_triggers = {
-            self.basegame_type: min(self.freespin_triggers[self.basegame_type].keys()) - 1,
-            self.freegame_type: min(self.freespin_triggers[self.freegame_type].keys()) - 1,
+            self.basegame_type: min(self.freespin_triggers[self.basegame_type].keys())
+            - 1,
+            self.freegame_type: min(self.freespin_triggers[self.freegame_type].keys())
+            - 1,
         }
 
         self.max_cluster_pay_size: int = 15
@@ -149,7 +156,7 @@ class GameConfig(Config):
         self.reels = {}
         for r, f in reels.items():
             self.reels[r] = self.read_reels_csv(os.path.join(self.reels_path, f))
-        mode_maxwins = {"base": 10000, "feature_5x": 10000, "bonus": 10000}
+        mode_maxwins = {"base": 10000, "feature_5x": 10000, "feature_cluster_drop": 10000, "bonus": 10000}
 
         self.bet_modes = [
             BetMode(
@@ -267,12 +274,59 @@ class GameConfig(Config):
                 ],
             ),
             BetMode(
+                name="feature_cluster_drop",
+                cost=25.0,
+                rtp=self.rtp,
+                max_win=mode_maxwins["feature_cluster_drop"],
+                auto_close_disabled=False,
+                is_feature=True,
+                is_buybonus=False,
+                distributions=[
+                    Distribution(
+                        criteria="wincap",
+                        quota=0.001,
+                        win_criteria=mode_maxwins["feature_cluster_drop"],
+                        conditions={
+                            "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
+                                self.freegame_type: {"FR0": 1, "WCAP": 5},
+                            },
+                            "scatter_triggers": {3: 1},
+                            "force_wincap": True,
+                            "force_freegame": True,
+                        },
+                    ),
+                    Distribution(
+                        criteria="freegame",
+                        quota=0.1,
+                        conditions={
+                            "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
+                                self.freegame_type: {"FR0": 1},
+                            },
+                            "scatter_triggers": {3: 1},
+                            "force_wincap": False,
+                            "force_freegame": True,
+                        },
+                    ),
+                    Distribution(
+                        criteria="basegame",
+                        quota=0.899,
+                        conditions={
+                            "reel_weights": {self.basegame_type: {"BR0": 1}},
+                            "force_wincap": False,
+                            "force_freegame": False,
+                        },
+                    ),
+                ],
+            ),
+            BetMode(
                 name="bonus",
                 cost=100.0,
                 rtp=self.rtp,
                 max_win=mode_maxwins["bonus"],
                 auto_close_disabled=False,
-                is_feature=True,
+                is_feature=False,
                 is_buybonus=True,
                 distributions=[
                     Distribution(

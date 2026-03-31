@@ -27,6 +27,7 @@ if __name__ == "__main__":
     num_sim_args = {
         "base": int(1e5),
         "feature_5x": int(1e5),
+        "feature_cluster_drop": int(1e5),
         "bonus": int(1e5),
     }
 
@@ -36,7 +37,7 @@ if __name__ == "__main__":
         "run_analysis": True,
         "run_format_checks": True,
     }
-    target_modes = ["base", "feature_5x", "bonus"]
+    target_modes = ["base", "feature_5x", "feature_cluster_drop", "bonus"]
 
     config = GameConfig()
     gamestate = GameState(config)
