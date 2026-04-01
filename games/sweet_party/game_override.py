@@ -16,6 +16,7 @@ class GameStateOverride(GameExecutables):
         self.tumble_win = 0
         self.xtile_position: tuple[int, int] | None = None
         self.xtile_hit: bool = False
+        self.is_super_bonus: bool = False
 
     def apply_xtile_to_clusters(self) -> None:
         if self.xtile_position is not None:
@@ -29,7 +30,7 @@ class GameStateOverride(GameExecutables):
         super().apply_xtile_to_clusters()
 
     def maybe_spawn_xtile(self) -> None:
-        if self.get_current_betmode().get_name() == "feature_max_multi_tile":
+        if self.get_current_betmode().get_name() == "feature_max_multi_tile" or self.is_super_bonus:
             if self.xtile_position is None:
                 reel = random.randint(0, self.config.num_reels - 1)
                 row = random.randint(0, self.config.num_rows[reel] - 1)

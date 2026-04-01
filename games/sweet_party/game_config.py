@@ -128,7 +128,7 @@ class GameConfig(Config):
         }
 
         self.freespin_triggers = {
-            self.basegame_type: {3: 8},
+            self.basegame_type: {3: 8, 4: 10, 5: 11, 6: 12, 7: 13},
             self.freegame_type: {3: 6, 4: 8, 5: 10, 6: 12, 7: 14},
         }
         self.anticipation_triggers = {
@@ -156,7 +156,7 @@ class GameConfig(Config):
         self.reels = {}
         for r, f in reels.items():
             self.reels[r] = self.read_reels_csv(os.path.join(self.reels_path, f))
-        mode_maxwins = {"base": 10000, "feature_5x": 10000, "feature_cluster_drop": 10000, "feature_max_multi_tile": 10000, "bonus": 10000}
+        mode_maxwins = {"base": 10000, "feature_5x": 10000, "feature_cluster_drop": 10000, "feature_max_multi_tile": 10000, "bonus": 10000, "super_bonus": 10000}
 
         self.bet_modes = [
             BetMode(
@@ -399,6 +399,44 @@ class GameConfig(Config):
                                 self.freegame_type: {"FR0": 1},
                             },
                             "scatter_triggers": {3: 1},
+                            "force_wincap": False,
+                            "force_freegame": True,
+                        },
+                    ),
+                ],
+            ),
+            BetMode(
+                name="super_bonus",
+                cost=300.0,
+                rtp=self.rtp,
+                max_win=mode_maxwins["super_bonus"],
+                auto_close_disabled=False,
+                is_feature=False,
+                is_buybonus=True,
+                distributions=[
+                    Distribution(
+                        criteria="wincap",
+                        quota=0.001,
+                        win_criteria=mode_maxwins["super_bonus"],
+                        conditions={
+                            "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
+                                self.freegame_type: {"FR0": 1, "WCAP": 5},
+                            },
+                            "scatter_triggers": {4: 1},
+                            "force_wincap": True,
+                            "force_freegame": True,
+                        },
+                    ),
+                    Distribution(
+                        criteria="freegame",
+                        quota=0.999,
+                        conditions={
+                            "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
+                                self.freegame_type: {"FR0": 1},
+                            },
+                            "scatter_triggers": {4: 1},
                             "force_wincap": False,
                             "force_freegame": True,
                         },

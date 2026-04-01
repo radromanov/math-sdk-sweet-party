@@ -21,7 +21,7 @@ if __name__ == "__main__":
     num_threads = 10
     rust_threads = 20
     batching_size = 50000
-    compression = False
+    compression = True
     profiling = False
 
     num_sim_args = {
@@ -30,6 +30,7 @@ if __name__ == "__main__":
         "feature_cluster_drop": int(1e5),
         "feature_max_multi_tile": int(1e5),
         "bonus": int(1e5),
+        "super_bonus": int(1e5),
     }
 
     run_conditions = {
@@ -38,7 +39,7 @@ if __name__ == "__main__":
         "run_analysis": True,
         "run_format_checks": True,
     }
-    target_modes = ["base", "feature_5x", "feature_cluster_drop", "feature_max_multi_tile", "bonus"]
+    target_modes = ["base", "feature_5x", "feature_cluster_drop", "feature_max_multi_tile", "bonus", "super_bonus"]
 
     config = GameConfig()
     gamestate = GameState(config)

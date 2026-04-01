@@ -23,6 +23,8 @@ class GameExecutables(GameCalculations):
         self.tot_fs = self.config.freespin_triggers[self.gametype][capped]
         if self.gametype == self.config.basegame_type:
             basegame_trigger, freegame_trigger = True, False
+            if capped >= 4:
+                self.is_super_bonus = True
         else:
             basegame_trigger, freegame_trigger = False, True
         fs_trigger_event(self, basegame_trigger=basegame_trigger, freegame_trigger=freegame_trigger)
