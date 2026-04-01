@@ -155,6 +155,51 @@ class OptimizationSetup:
                     bias_weights=[0.4],
                 ).return_dict(),
             },
+            "feature_max_multi_tile": {
+                "conditions": {
+                    "wincap": ConstructConditions(
+                        rtp=0.01, av_win=wincaps["feature_max_multi_tile"], search_conditions=wincaps["feature_max_multi_tile"]
+                    ).return_dict(),
+                    "freegame": ConstructConditions(
+                        rtp=0.35, hr=200, search_conditions={"symbol": "scatter"}
+                    ).return_dict(),
+                    "basegame": ConstructConditions(hr="x", rtp=0.60).return_dict(),
+                },
+                "scaling": ConstructScaling(
+                    [
+                        {"criteria": "basegame", "scale_factor": 1.2, "win_range": (1, 2), "probability": 1.0},
+                        {"criteria": "basegame", "scale_factor": 1.5, "win_range": (10, 20), "probability": 1.0},
+                        {
+                            "criteria": "freegame",
+                            "scale_factor": 0.8,
+                            "win_range": (2000, 4000),
+                            "probability": 1.0,
+                        },
+                        {
+                            "criteria": "freegame",
+                            "scale_factor": 1.2,
+                            "win_range": (6000, 8000),
+                            "probability": 1.0,
+                        },
+                    ]
+                ).return_dict(),
+                "parameters": ConstructParameters(
+                    num_show=5000,
+                    num_per_fence=10000,
+                    min_m2m=4,
+                    max_m2m=8,
+                    pmb_rtp=1.0,
+                    sim_trials=5000,
+                    test_spins=[50, 100, 200],
+                    test_weights=[0.3, 0.4, 0.3],
+                    score_type="rtp",
+                ).return_dict(),
+                "distribution_bias": ConstructFenceBias(
+                    applied_criteria=["basegame"],
+                    bias_ranges=[(0.5, 1.5)],
+                    bias_weights=[0.4],
+                ).return_dict(),
+            },
             "bonus": {
                 "conditions": {
                     "wincap": ConstructConditions(

@@ -15,6 +15,29 @@ class GameStateOverride(GameExecutables):
         super().reset_book()
         self.tumble_win = 0
         self.xtile_position: tuple[int, int] | None = None
+        self.xtile_hit: bool = False
+
+    def apply_xtile_to_clusters(self) -> None:
+        if self.xtile_position is not None:
+            xtile_reel = self.xtile_position[0]
+            xtile_row = self.xtile_position[1]
+            for win_entry in self.win_data["wins"]:
+                for pos in win_entry["positions"]:
+                    if pos["reel"] == xtile_reel and pos["row"] == xtile_row:
+                        self.xtile_hit = True
+                        break
+        super().apply_xtile_to_clusters()
+
+    def maybe_spawn_xtile(self) -> None:
+        if self.get_current_betmode().get_name() == "feature_max_multi_tile":
+            if self.xtile_position is None:
+                reel = random.randint(0, self.config.num_reels - 1)
+                row = random.randint(0, self.config.num_rows[reel] - 1)
+                self.xtile_position = (reel, row)
+                from game_events import xtile_spawn_event
+                xtile_spawn_event(self)
+        else:
+            super().maybe_spawn_xtile()
 
     def assign_special_sym_function(self) -> None:
         """Register random multiplier assignment for all paying symbols."""
@@ -45,4 +68,7 @@ class GameStateOverride(GameExecutables):
                 self.repeat = True
 
             if self.win_manager.running_bet_win == 0 and self.criteria != "0":
+                self.repeat = True
+
+            if self.get_current_betmode().get_name() == "feature_max_multi_tile" and not self.xtile_hit:
                 self.repeat = True
