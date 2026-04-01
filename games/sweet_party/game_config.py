@@ -146,9 +146,9 @@ class GameConfig(Config):
         self.multiplier_product_cap: int = 1024
         self.multiplier_excluded_symbols: set[str] = {"S"}
 
-        # Gold X-Tile configuration (freegame only per spec)
+        # Gold X-Tile configuration
         self.xtile_chance: dict[str, float] = {
-            self.basegame_type: 0.0,
+            self.basegame_type: 0.05,
             self.freegame_type: 0.10,
         }
 
